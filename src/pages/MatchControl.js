@@ -13,6 +13,8 @@ const MatchControl = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
   const [qrScanner, setQrScanner] = useState(null);
+  const [qrSuccess, setQrSuccess] = useState(false);
+  const [qrMessage, setQrMessage] = useState("");
   const qrScannerRef = useRef(null);
 
   useEffect(() => {
@@ -53,12 +55,26 @@ const MatchControl = () => {
               // QR kod başarıyla okundu
               console.log("QR kod okundu:", decodedText);
               setMatchCode(decodedText);
-              stopQRScanner();
-              alert(`QR Kod okundu: ${decodedText}`);
+              setQrMessage(`QR kod başarıyla okundu: ${decodedText}`);
+              setQrSuccess(true);
+              
+              // Scanner'ı hemen temizle
+              scanner.clear().then(() => {
+                setQrScanner(null);
+                setShowQRScanner(false);
+                
+                // 3 saniye sonra mesajı gizle
+                setTimeout(() => {
+                  setQrSuccess(false);
+                  setQrMessage("");
+                }, 3000);
+              }).catch(error => {
+                console.error("Scanner temizlenirken hata:", error);
+              });
             },
             (error) => {
               // QR kod okuma hatası (normal, sürekli dener)
-              console.log("QR tarama devam ediyor...", error);
+              // Bu hataları log'lama, çok fazla noise yaratır
             }
           );
 
@@ -77,12 +93,17 @@ const MatchControl = () => {
     if (qrScanner) {
       qrScanner.clear().then(() => {
         console.log("QR Scanner temizlendi");
+        setQrScanner(null);
+        setShowQRScanner(false);
       }).catch(error => {
         console.error("QR Scanner temizlenirken hata:", error);
+        // Hata olsa bile state'i temizle
+        setQrScanner(null);
+        setShowQRScanner(false);
       });
-      setQrScanner(null);
+    } else {
+      setShowQRScanner(false);
     }
-    setShowQRScanner(false);
   };
 
   // Component unmount olduğunda QR scanner'ı temizle
@@ -376,6 +397,16 @@ const MatchControl = () => {
           </div>
         )}
       </div>
+
+      {/* QR Success Message */}
+      {qrSuccess && (
+        <div style={qrSuccessOverlay}>
+          <div style={qrSuccessMessage}>
+            <div style={qrSuccessIcon}>✅</div>
+            <p style={qrSuccessText}>{qrMessage}</p>
+          </div>
+        </div>
+      )}
 
       {/* QR Scanner Modal */}
       {showQRScanner && (
@@ -913,6 +944,44 @@ const qrCancelButton = {
   fontWeight: "500"
 };
 
+// QR Success Message Styles
+const qrSuccessOverlay = {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  background: "rgba(0, 0, 0, 0.5)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  zIndex: 1001
+};
+
+const qrSuccessMessage = {
+  background: "white",
+  borderRadius: "20px",
+  padding: "30px",
+  textAlign: "center",
+  maxWidth: "320px",
+  width: "90%",
+  boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
+  animation: "successSlideIn 0.3s ease-out"
+};
+
+const qrSuccessIcon = {
+  fontSize: "48px",
+  marginBottom: "15px"
+};
+
+const qrSuccessText = {
+  color: "#1b4332",
+  fontSize: "16px",
+  fontWeight: "500",
+  margin: 0,
+  lineHeight: 1.4
+};
+
 // Add CSS animations
 const styleElement = document.createElement('style');
 styleElement.textContent = `
@@ -984,6 +1053,17 @@ styleElement.textContent = `
   
   #qr-scanner-container button:hover {
     background: #52b788 !important;
+  }
+  
+  @keyframes successSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-30px) scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
   }
 `;
 document.head.appendChild(styleElement);
