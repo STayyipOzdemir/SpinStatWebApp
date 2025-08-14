@@ -1,0 +1,138 @@
+/* Global responsive styles */
+.App {
+  text-align: center;
+  background: linear-gradient(135deg, #2d5a27 0%, #4a7c59 100%);
+  min-height: 100vh;
+}
+
+/* Mobile-first approach */
+.App-logo {
+  height: 30vmin;
+  pointer-events: none;
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+}
+
+/* Tablet */
+@media (min-width: 768px) {
+  .App-logo {
+    height: 35vmin;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .App-logo {
+    height: 40vmin;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background: linear-gradient(135deg, #1b4332 0%, #2d5016 50%, #40916c 100%);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+}
+
+.App-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="tennis-court" patternUnits="userSpaceOnUse" width="20" height="20"><rect width="20" height="20" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23tennis-court)"/></svg>');
+  opacity: 0.1;
+}
+
+.App-link {
+  color: #95d5b2;
+  text-shadow: 0 0 10px rgba(149, 213, 178, 0.5);
+  transition: all 0.3s ease;
+}
+
+.App-link:hover {
+  color: #b7e4c7;
+  text-shadow: 0 0 15px rgba(183, 228, 199, 0.8);
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Tennis themed background patterns */
+.tennis-bg-pattern {
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(149, 213, 178, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 50%, rgba(183, 228, 199, 0.1) 0%, transparent 50%),
+    linear-gradient(135deg, #2d5a27 0%, #4a7c59 100%);
+}
+
+/* Mobile responsive scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+/* Tablet */
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+}
+
+::-webkit-scrollbar-track {
+  background: #1b4332;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #40916c;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #52b788;
+}
+
+/* Safe areas for notch phones */
+@supports (padding: max(0px)) {
+  .safe-top {
+    padding-top: max(20px, env(safe-area-inset-top));
+  }
+  
+  .safe-bottom {
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+  }
+  
+  .safe-left {
+    padding-left: max(20px, env(safe-area-inset-left));
+  }
+  
+  .safe-right {
+    padding-right: max(20px, env(safe-area-inset-right));
+  }
+}
+
+/* Touch targets for mobile */
+@media (max-width: 768px) {
+  button, a, input, select {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+}
