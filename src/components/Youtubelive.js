@@ -13,7 +13,7 @@ const YouTubeLive = () => {
 
   // Kortlara göre video ID'leri
   const videos = {
-    "Kort 1": "aK4V24r1ioU",
+    "Kort 1": "db0qCBnXPBc",
     "Kort 2": "mKCieTImjvU"
   };
 
