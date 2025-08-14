@@ -1,0 +1,15 @@
+{
+  "title": "Live Stream",
+  "subtitle": "Watch the best tennis matches live",
+  "categoryLabel": "Category:",
+  "courtLabel": "Court:",
+  "liveBadge": "LIVE",
+  "hd": "HD",
+  "fullscreenEnter": "Fullscreen",
+  "fullscreenExit": "Exit Fullscreen",
+  "close": "Close",
+  "qualityLabel": "Quality:",
+  "platformLabel": "Platform:",
+  "latencyLabel": "Latency:",
+  "latencyApprox": "~5 seconds"
+}

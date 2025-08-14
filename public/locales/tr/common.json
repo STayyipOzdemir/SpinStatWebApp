@@ -1,0 +1,10 @@
+{
+  "appName": "Tennis Live",
+  "navbar": {
+    "home": "Ana Sayfa",
+    "live": "Canlı Yayın",
+    "matchControl": "Maça Başla",
+    "auth": "Giriş",
+    "logout": "Çıkış"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "appName": "Tennis Live",
+  "navbar": {
+    "home": "Accueil",
+    "live": "En direct",
+    "matchControl": "Contrôle du match",
+    "auth": "Connexion",
+    "logout": "Déconnexion"
+  }
+}

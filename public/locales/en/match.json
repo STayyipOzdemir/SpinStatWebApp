@@ -1,0 +1,22 @@
+{
+  "title": "Match Control",
+  "startMatch": "Start Match",
+  "stopMatch": "End Match",
+  "court": "Court",
+  "court1": "Court 1",
+  "court2": "Court 2",
+  "exampleCodesLabel": "Sample codes:",
+  "courtCode1": "court-001",
+  "courtCode2": "court-002",
+  "autoRecordTitle": "Automatic Recording",
+  "autoRecordDesc": "Your match will be recorded automatically",
+  "liveStatsTitle": "Live Statistics",
+  "liveStatsDesc": "Track your match duration",
+  "quality": "Quality",
+  "status": "Status",
+  "liveShort": "LIVE",
+  "live": "LIVE",
+  "timerLabel": "Match Duration",
+  "enterCourtCode": "Enter court code to start a new match"
+}
+

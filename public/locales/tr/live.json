@@ -1,0 +1,15 @@
+{
+  "title": "Canlı Yayın",
+  "subtitle": "En iyi tenis maçlarını canlı izleyin",
+  "categoryLabel": "Kategori:",
+  "courtLabel": "Kort:",
+  "liveBadge": "CANLI YAYIN",
+  "hd": "HD",
+  "fullscreenEnter": "Tam Ekran",
+  "fullscreenExit": "Küçük Ekran",
+  "close": "Kapat",
+  "qualityLabel": "Kalite:",
+  "platformLabel": "Platform:",
+  "latencyLabel": "Gecikme:",
+  "latencyApprox": "~5 saniye"
+}

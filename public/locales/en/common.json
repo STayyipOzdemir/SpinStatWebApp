@@ -1,0 +1,10 @@
+{
+  "appName": "Tennis Live",
+  "navbar": {
+    "home": "Home",
+    "live": "Live",
+    "matchControl": "Match Control",
+    "auth": "Sign In",
+    "logout": "Sign Out"
+  }
+}

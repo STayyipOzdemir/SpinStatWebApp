@@ -1,20 +1,31 @@
+// src/components/Youtubelive.js
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const YouTubeLive = () => {
+  const { t } = useTranslation("live");
+
   const [selectedCategory, setSelectedCategory] = useState("Ankara Bilkent Sports International");
   const [selectedCourt, setSelectedCourt] = useState("Kort 1");
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Kategoriler (şimdilik tek kategori)
+  // Kategoriler (özel isim, çevrilmez)
   const categories = ["Ankara Bilkent Sports International"];
 
-  // Kortlar
+  // İç değerler aynen kalsın (video mapping ile uyum için)
   const courts = ["Kort 1", "Kort 2"];
 
-  // Kortlara göre video ID'leri
+  // Kortlara göre video ID'leri (İÇ DEĞERLERİ KULLANIYOR)
   const videos = {
     "Kort 1": "aK4V24r1ioU",
     "Kort 2": "mKCieTImjvU"
+  };
+
+  // Görünen etiket çevirisi — iç değeri değiştirme
+  const courtLabel = (c) => {
+    if (c === "Kort 1") return t("court1", "Kort 1");
+    if (c === "Kort 2") return t("court2", "Kort 2");
+    return c;
   };
 
   return (
@@ -23,11 +34,9 @@ const YouTubeLive = () => {
       <div style={headerSection}>
         <div style={titleContainer}>
           <span style={titleIcon}>📺</span>
-          <h1 style={pageTitle}>Canlı Yayın</h1>
+          <h1 style={pageTitle}>{t("title")}</h1>
         </div>
-        <div style={subtitle}>
-          En iyi tenis maçlarını canlı izleyin
-        </div>
+        <div style={subtitle}>{t("subtitle")}</div>
       </div>
 
       {/* Kontrol Paneli */}
@@ -36,10 +45,10 @@ const YouTubeLive = () => {
         <div style={selectorGroup}>
           <label style={labelStyle}>
             <span style={labelIcon}>🏆</span>
-            <span style={labelText}>Kategori:</span>
+            <span style={labelText}>{t("categoryLabel")}</span>
           </label>
-          <select 
-            value={selectedCategory} 
+          <select
+            value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
             style={selectStyle}
           >
@@ -53,15 +62,15 @@ const YouTubeLive = () => {
         <div style={selectorGroup}>
           <label style={labelStyle}>
             <span style={labelIcon}>🎾</span>
-            <span style={labelText}>Kort:</span>
+            <span style={labelText}>{t("courtLabel")}</span>
           </label>
-          <select 
-            value={selectedCourt} 
+          <select
+            value={selectedCourt}
             onChange={(e) => setSelectedCourt(e.target.value)}
             style={selectStyle}
           >
             {courts.map((court, index) => (
-              <option key={index} value={court}>{court}</option>
+              <option key={index} value={court}>{courtLabel(court)}</option>
             ))}
           </select>
         </div>
@@ -71,19 +80,16 @@ const YouTubeLive = () => {
       <div style={courtInfo}>
         <div style={courtInfoIcon}>🏟️</div>
         <div style={courtInfoText}>
-          <strong>{selectedCategory}</strong> - {selectedCourt}
+          <strong>{selectedCategory}</strong> - {courtLabel(selectedCourt)}
           <div style={liveIndicator}>
             <span style={liveDot}></span>
-            <span style={liveText}>CANLI YAYIN</span>
+            <span style={liveText}>{t("liveBadge")}</span>
           </div>
         </div>
       </div>
 
       {/* Video Player Container */}
-      <div style={{
-        ...videoContainer,
-        ...(isFullscreen ? fullscreenContainer : {})
-      }}>
+      <div style={{ ...videoContainer, ...(isFullscreen ? fullscreenContainer : {}) }}>
         <div style={videoWrapper}>
           <iframe
             src={`https://www.youtube.com/embed/${videos[selectedCourt]}?autoplay=1&rel=0&showinfo=0`}
@@ -91,24 +97,22 @@ const YouTubeLive = () => {
             allow="autoplay; encrypted-media; fullscreen"
             allowFullScreen
             style={videoFrame}
-            title={`${selectedCourt} Canlı Yayın`}
+            title={`${courtLabel(selectedCourt)} ${t("title")}`}
           />
-          
+
           {/* Video Controls Overlay */}
           <div style={videoOverlay}>
             <div style={overlayCorner}>
-              <span style={overlayText}>HD</span>
+              <span style={overlayText}>{t("hd")}</span>
             </div>
-            
+
             <div style={videoControls}>
               <button
                 onClick={() => setIsFullscreen(!isFullscreen)}
                 style={fullscreenButton}
-                title={isFullscreen ? "Küçük Ekran" : "Tam Ekran"}
+                title={isFullscreen ? t("fullscreenExit") : t("fullscreenEnter")}
               >
-                <span style={fullscreenIcon}>
-                  {isFullscreen ? "📉" : "📈"}
-                </span>
+                <span style={fullscreenIcon}>{isFullscreen ? "📉" : "📈"}</span>
               </button>
             </div>
           </div>
@@ -119,10 +123,10 @@ const YouTubeLive = () => {
           <button
             onClick={() => setIsFullscreen(false)}
             style={exitFullscreenButton}
-            title="Tam Ekrandan Çık"
+            title={t("close")}
           >
             <span style={exitIcon}>✕</span>
-            <span style={exitText}>Kapat</span>
+            <span style={exitText}>{t("close")}</span>
           </button>
         )}
       </div>
@@ -132,19 +136,19 @@ const YouTubeLive = () => {
         <div style={infoItem}>
           <span style={infoIcon}>📊</span>
           <div style={infoText}>
-            <strong>Kalite:</strong> HD 1080p
+            <strong>{t("qualityLabel")}</strong> HD 1080p
           </div>
         </div>
         <div style={infoItem}>
           <span style={infoIcon}>🌐</span>
           <div style={infoText}>
-            <strong>Platform:</strong> YouTube Live
+            <strong>{t("platformLabel")}</strong> YouTube Live
           </div>
         </div>
         <div style={infoItem}>
           <span style={infoIcon}>⚡</span>
           <div style={infoText}>
-            <strong>Gecikme:</strong> ~5 saniye
+            <strong>{t("latencyLabel")}</strong> {t("latencyApprox")}
           </div>
         </div>
       </div>
@@ -152,7 +156,7 @@ const YouTubeLive = () => {
   );
 };
 
-// Responsive Stil tanımları
+// ------------------ Stil tanımları (aynı) ------------------
 const containerStyle = {
   padding: "clamp(15px, 4vw, 25px)",
   background: "linear-gradient(135deg, #f8fff8 0%, #e8f5e8 100%)",
@@ -228,14 +232,8 @@ const labelStyle = {
   color: "#1b4332"
 };
 
-const labelIcon = {
-  fontSize: "clamp(16px, 4vw, 18px)",
-  flexShrink: 0
-};
-
-const labelText = {
-  whiteSpace: "nowrap"
-};
+const labelIcon = { fontSize: "clamp(16px, 4vw, 18px)", flexShrink: 0 };
+const labelText = { whiteSpace: "nowrap" };
 
 const selectStyle = {
   padding: "clamp(10px, 3vw, 12px) clamp(12px, 3vw, 16px)",
@@ -270,11 +268,7 @@ const courtInfoIcon = {
   flexShrink: 0
 };
 
-const courtInfoText = {
-  flex: 1,
-  fontSize: "clamp(14px, 3vw, 16px)",
-  minWidth: "200px"
-};
+const courtInfoText = { flex: 1, fontSize: "clamp(14px, 3vw, 16px)", minWidth: "200px" };
 
 const liveIndicator = {
   display: "flex",
@@ -296,9 +290,7 @@ const liveDot = {
   flexShrink: 0
 };
 
-const liveText = {
-  whiteSpace: "nowrap"
-};
+const liveText = { whiteSpace: "nowrap" };
 
 const videoContainer = {
   marginBottom: "clamp(20px, 5vw, 25px)",
@@ -306,7 +298,7 @@ const videoContainer = {
   overflow: "hidden",
   boxShadow: "0 12px 40px rgba(45, 90, 39, 0.2)",
   position: "relative",
-  maxWidth: "600px",  // Video ekranını küçülttük
+  maxWidth: "600px",
   margin: "0 auto clamp(20px, 5vw, 25px) auto"
 };
 
@@ -326,31 +318,9 @@ const fullscreenContainer = {
   justifyContent: "center"
 };
 
-const videoWrapper = {
-  position: "relative",
-  paddingBottom: "56.25%",
-  height: 0,
-  background: "#000"
-};
-
-const videoFrame = {
-  position: "absolute",
-  top: 0,
-  left: 0,
-  width: "100%",
-  height: "100%",
-  borderRadius: "clamp(15px, 4vw, 20px)"
-};
-
-const videoOverlay = {
-  position: "absolute",
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  pointerEvents: "none",
-  borderRadius: "clamp(15px, 4vw, 20px)"
-};
+const videoWrapper = { position: "relative", paddingBottom: "56.25%", height: 0, background: "#000" };
+const videoFrame = { position: "absolute", top: 0, left: 0, width: "100%", height: "100%", borderRadius: "clamp(15px, 4vw, 20px)" };
+const videoOverlay = { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, pointerEvents: "none", borderRadius: "clamp(15px, 4vw, 20px)" };
 
 const overlayCorner = {
   position: "absolute",
@@ -362,18 +332,8 @@ const overlayCorner = {
   padding: "clamp(3px, 1vw, 4px) clamp(6px, 2vw, 8px)"
 };
 
-const overlayText = {
-  color: "white",
-  fontSize: "clamp(10px, 2.5vw, 12px)",
-  fontWeight: "bold"
-};
-
-const videoControls = {
-  position: "absolute",
-  bottom: "clamp(10px, 3vw, 15px)",
-  right: "clamp(10px, 3vw, 15px)",
-  pointerEvents: "all"
-};
+const overlayText = { color: "white", fontSize: "clamp(10px, 2.5vw, 12px)", fontWeight: "bold" };
+const videoControls = { position: "absolute", bottom: "clamp(10px, 3vw, 15px)", right: "clamp(10px, 3vw, 15px)", pointerEvents: "all" };
 
 const fullscreenButton = {
   background: "rgba(0, 0, 0, 0.7)",
@@ -391,9 +351,7 @@ const fullscreenButton = {
   minHeight: "32px"
 };
 
-const fullscreenIcon = {
-  fontSize: "clamp(16px, 4vw, 18px)"
-};
+const fullscreenIcon = { fontSize: "clamp(16px, 4vw, 18px)" };
 
 const exitFullscreenButton = {
   position: "absolute",
@@ -416,14 +374,8 @@ const exitFullscreenButton = {
   minHeight: "40px"
 };
 
-const exitIcon = {
-  fontSize: "clamp(16px, 4vw, 18px)",
-  fontWeight: "bold"
-};
-
-const exitText = {
-  whiteSpace: "nowrap"
-};
+const exitIcon = { fontSize: "clamp(16px, 4vw, 18px)", fontWeight: "bold" };
+const exitText = { whiteSpace: "nowrap" };
 
 const infoPanel = {
   display: "grid",
@@ -446,175 +398,25 @@ const infoItem = {
   textAlign: "center"
 };
 
-const infoIcon = {
-  fontSize: "clamp(16px, 4vw, 20px)",
-  flexShrink: 0
-};
+const infoIcon = { fontSize: "clamp(16px, 4vw, 20px)", flexShrink: 0 };
+const infoText = { fontSize: "clamp(12px, 3vw, 14px)", color: "#1b4332", lineHeight: 1.3 };
 
-const infoText = {
-  fontSize: "clamp(12px, 3vw, 14px)",
-  color: "#1b4332",
-  lineHeight: 1.3
-};
-
-// Mobile responsive animations and keyframes
-const styleElement = document.createElement('style');
+// Animasyon stilleri (modül yüklenirken 1 kez eklenir)
+const styleElement = document.createElement("style");
 styleElement.textContent = `
-  @keyframes pulse {
-    0% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.7; transform: scale(1.2); }
-    100% { opacity: 1; transform: scale(1); }
-  }
-  
-  /* Mobile optimizations */
-  @media (max-width: 768px) {
-    body {
-      -webkit-text-size-adjust: 100%;
-      -webkit-font-smoothing: antialiased;
-    }
-    
-    * {
-      -webkit-tap-highlight-color: transparent;
-    }
-    
-    /* Prevent zoom on select focus */
-    select {
-      font-size: 16px !important;
-    }
-    
-    /* Better touch targets */
-    select, button {
-      min-height: 44px;
-      min-width: 44px;
-    }
-  }
-  
-  /* Small phones */
-  @media (max-width: 375px) {
-    [style*="controlPanel"] {
-      flex-direction: column !important;
-      align-items: center !important;
-    }
-    
-    [style*="selectorGroup"] {
-      width: 100% !important;
-      max-width: none !important;
-    }
-    
-    [style*="courtInfo"] {
-      flex-direction: column !important;
-      text-align: center !important;
-      gap: 8px !important;
-    }
-    
-    [style*="infoPanel"] {
-      grid-template-columns: 1fr !important;
-    }
-  }
-  
-  /* Medium phones */
-  @media (min-width: 376px) and (max-width: 480px) {
-    [style*="infoPanel"] {
-      grid-template-columns: repeat(2, 1fr) !important;
-    }
-  }
-  
-  /* Large phones */
-  @media (min-width: 481px) and (max-width: 768px) {
-    [style*="controlPanel"] {
-      justify-content: space-around !important;
-    }
-    
-    [style*="infoPanel"] {
-      grid-template-columns: repeat(3, 1fr) !important;
-    }
-  }
-  
-  /* Landscape mode on phones */
-  @media (max-height: 500px) and (orientation: landscape) {
-    [style*="headerSection"] {
-      padding: 10px 20px !important;
-      margin-bottom: 15px !important;
-    }
-    
-    [style*="controlPanel"] {
-      margin-bottom: 15px !important;
-    }
-    
-    [style*="courtInfo"] {
-      padding: 10px 15px !important;
-      margin-bottom: 15px !important;
-    }
-    
-    [style*="videoContainer"] {
-      margin-bottom: 15px !important;
-    }
-  }
-  
-  /* iPhone X+ safe areas */
-  @supports (padding: max(0px)) {
-    [style*="containerStyle"] {
-      padding-left: max(15px, env(safe-area-inset-left)) !important;
-      padding-right: max(15px, env(safe-area-inset-right)) !important;
-    }
-  }
-  
-  /* Focus states */
-  select:focus {
-    border-color: #40916c !important;
-    box-shadow: 0 0 0 3px rgba(64, 145, 108, 0.1) !important;
-  }
-  
-  /* Hover effects only on non-touch devices */
-  @media (hover: hover) {
-    [style*="infoItem"]:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(45, 90, 39, 0.15) !important;
-    }
-    
-    [style*="fullscreenButton"]:hover {
-      background: rgba(0, 0, 0, 0.9) !important;
-      transform: scale(1.05);
-    }
-    
-    [style*="exitFullscreenButton"]:hover {
-      background: rgba(0, 0, 0, 0.95) !important;
-      transform: scale(1.05);
-    }
-  }
-  
-  /* Fullscreen specific styles */
-  [style*="fullscreenContainer"] [style*="videoFrame"] {
-    border-radius: 0 !important;
-  }
-  
-  [style*="fullscreenContainer"] [style*="videoOverlay"] {
-    border-radius: 0 !important;
-  }
-  
-  /* Mobile fullscreen optimizations */
-  @media (max-width: 768px) {
-    [style*="exitFullscreenButton"] {
-      top: 10px !important;
-      right: 10px !important;
-      padding: 6px 10px !important;
-    }
-    
-    [style*="exitText"] {
-      display: none !important;
-    }
-    
-    [style*="fullscreenButton"] {
-      padding: 4px 6px !important;
-    }
-  }
-  
-  /* High DPI displays */
-  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-    [style*="titleIcon"] {
-      filter: drop-shadow(0 0 8px rgba(45, 90, 39, 0.3)) !important;
-    }
-  }
+  @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: .7; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
+  @media (max-width: 768px) { body { -webkit-text-size-adjust: 100%; -webkit-font-smoothing: antialiased; } * { -webkit-tap-highlight-color: transparent; } select { font-size: 16px !important; } select, button { min-height: 44px; min-width: 44px; } }
+  @media (max-width: 375px) { [style*="controlPanel"] { flex-direction: column !important; align-items: center !important; } [style*="selectorGroup"] { width: 100% !important; max-width: none !important; } [style*="courtInfo"] { flex-direction: column !important; text-align: center !important; gap: 8px !important; } [style*="infoPanel"] { grid-template-columns: 1fr !important; } }
+  @media (min-width: 376px) and (max-width: 480px) { [style*="infoPanel"] { grid-template-columns: repeat(2, 1fr) !important; } }
+  @media (min-width: 481px) and (max-width: 768px) { [style*="controlPanel"] { justify-content: space-around !important; } [style*="infoPanel"] { grid-template-columns: repeat(3, 1fr) !important; } }
+  @media (max-height: 500px) and (orientation: landscape) { [style*="headerSection"] { padding: 10px 20px !important; margin-bottom: 15px !important; } [style*="controlPanel"] { margin-bottom: 15px !important; } [style*="courtInfo"] { padding: 10px 15px !important; margin-bottom: 15px !important; } [style*="videoContainer"] { margin-bottom: 15px !important; } }
+  @supports (padding: max(0px)) { [style*="containerStyle"] { padding-left: max(15px, env(safe-area-inset-left)) !important; padding-right: max(15px, env(safe-area-inset-right)) !important; } }
+  select:focus { border-color: #40916c !important; box-shadow: 0 0 0 3px rgba(64, 145, 108, 0.1) !important; }
+  @media (hover: hover) { [style*="infoItem"]:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(45, 90, 39, 0.15) !important; } [style*="fullscreenButton"]:hover { background: rgba(0,0,0,0.9) !important; transform: scale(1.05); } [style*="exitFullscreenButton"]:hover { background: rgba(0,0,0,0.95) !important; transform: scale(1.05); } }
+  [style*="fullscreenContainer"] [style*="videoFrame"] { border-radius: 0 !important; }
+  [style*="fullscreenContainer"] [style*="videoOverlay"] { border-radius: 0 !important; }
+  @media (max-width: 768px) { [style*="exitFullscreenButton"] { top: 10px !important; right: 10px !important; padding: 6px 10px !important; } [style*="exitText"] { display: none !important; } [style*="fullscreenButton"] { padding: 4px 6px !important; } }
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) { [style*="titleIcon"] { filter: drop-shadow(0 0 8px rgba(45, 90, 39, 0.3)) !important; } }
 `;
 document.head.appendChild(styleElement);
 

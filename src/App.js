@@ -7,8 +7,17 @@ import MatchControl from "./pages/MatchControl";
 import Auth from "./pages/Auth";
 import { useAuth } from "./context/AuthContext";
 
+// >>> i18n ekleri
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "./components/LanguageSwitcher";
+
 function App() {
   const { user, logout } = useAuth();
+
+  // >>> i18n ekleri
+  const { t, i18n } = useTranslation("common");
+  // html lang
+  document.documentElement.lang = i18n.resolvedLanguage;
 
   const handleLogout = async () => {
     try {
@@ -29,7 +38,8 @@ function App() {
         <header style={headerStyle}>
           <div style={logoContainer}>
             <div style={tennisIcon}>🎾</div>
-            <h1 style={appTitle}>Tennis Live</h1>
+            {/* >>> i18n: başlık */}
+            <h1 style={appTitle}>{t("appName")}</h1>
           </div>
           
           <div style={userInfoContainer}>
@@ -40,8 +50,13 @@ function App() {
               </span>
               <button onClick={handleLogout} style={logoutButton}>
                 <span>🚪</span> 
-                <span style={logoutText}>Çıkış</span>
+                {/* >>> i18n: çıkış */}
+                <span style={logoutText}>{t("navbar.logout")}</span>
               </button>
+            </div>
+            {/* >>> i18n: dil değiştirici (kompakt) */}
+            <div style={{ marginLeft: 10 }}>
+              <LanguageSwitcher />
             </div>
           </div>
         </header>
@@ -64,11 +79,14 @@ function App() {
 
 const NavigationBar = () => {
   const location = useLocation();
+
+  // >>> i18n ekleri
+  const { t } = useTranslation("common");
   
   const navItems = [
-    { path: "/", icon: "🏠", label: "Ana Sayfa" },
-    { path: "/live", icon: "📺", label: "Canlı Yayın" },
-    { path: "/matchcontrol", icon: "🎾", label: "Maça Başla" }
+    { path: "/", icon: "🏠", label: t("navbar.home") },
+    { path: "/live", icon: "📺", label: t("navbar.live") },
+    { path: "/matchcontrol", icon: "🎾", label: t("navbar.matchControl") }
   ];
 
   return (
@@ -92,7 +110,7 @@ const NavigationBar = () => {
   );
 };
 
-// Responsive Stil tanımları
+// Responsive Stil tanımları (AYNEN BIRAKILDI)
 const appContainer = {
   minHeight: "100vh",
   display: "flex",
@@ -258,7 +276,7 @@ const navLabel = {
   lineHeight: 1.2
 };
 
-// Mobile specific styles
+// Mobile specific styles (AYNEN BIRAKILDI)
 const styleElement = document.createElement('style');
 styleElement.textContent = `
   /* Mobile viewport fixes */

@@ -1,0 +1,9 @@
+{
+  "title": "Contrôle du match",
+  "startMatch": "Démarrer le match",
+  "stopMatch": "Terminer le match",
+  "court": "Court",
+  "court1": "Court 1",
+  "court2": "Court 2",
+  "enterCourtCode": "Entrez le code du court pour commencer un nouveau match"
+}

@@ -1,0 +1,15 @@
+{
+  "title": "Diffusion en direct",
+  "subtitle": "Regardez les meilleurs matchs de tennis en direct",
+  "categoryLabel": "Catégorie :",
+  "courtLabel": "Court :",
+  "liveBadge": "EN DIRECT",
+  "hd": "HD",
+  "fullscreenEnter": "Plein écran",
+  "fullscreenExit": "Quitter le plein écran",
+  "close": "Fermer",
+  "qualityLabel": "Qualité :",
+  "platformLabel": "Plateforme :",
+  "latencyLabel": "Latence :",
+  "latencyApprox": "~5 secondes"
+}

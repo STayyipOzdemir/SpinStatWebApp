@@ -1,0 +1,21 @@
+{
+  "title": "Maç Kontrol",
+  "startMatch": "Maçı Başlat",
+  "stopMatch": "Maçı Bitir",
+  "court": "Kort",
+  "court1": "Kort 1",
+  "court2": "Kort 2",
+  "exampleCodesLabel": "Örnek kodlar:",
+  "courtCode1": "court-001",
+  "courtCode2": "court-002",
+  "autoRecordTitle": "Otomatik Kayıt",
+  "autoRecordDesc": "Maçınız otomatik olarak kaydedilecek",
+  "liveStatsTitle": "Anlık İstatistik",
+  "liveStatsDesc": "Maç süresini takip edin",
+  "quality": "Kalite",
+  "status": "Durum",
+  "liveShort": "CANLI",
+  "live": "CANLI",
+  "timerLabel": "Maç Süresi",
+  "enterCourtCode": "Yeni bir maç başlatmak için kort kodunu girin"
+}
