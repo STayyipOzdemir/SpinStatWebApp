@@ -133,7 +133,7 @@ const MatchControl = () => {
     setIsLoading(true);
     try {
       // 1️⃣ API isteği
-      const res = await fetch(`https://e97aeec9e2a3.ngrok-free.app/v1/courts/${matchCode}/control`, {
+      const res = await fetch(`https://3e97fe1c9e26.ngrok-free.app/v1/courts/${matchCode}/control`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
