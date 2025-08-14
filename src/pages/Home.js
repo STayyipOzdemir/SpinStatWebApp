@@ -29,7 +29,6 @@ function Home() {
     { number: "24/7", label: "Canlı Yayın", icon: "🔴" },
     { number: "2", label: "Aktif Kort", icon: "🏟️" },
     { number: "HD", label: "Video Kalitesi", icon: "📱" },
-    { number: "∞", label: "İzleme Süresi", icon: "⏰" }
   ];
 
   return (
