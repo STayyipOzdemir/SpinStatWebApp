@@ -45,7 +45,12 @@ const MatchControl = () => {
               aspectRatio: 1.0,
               showTorchButtonIfSupported: true,
               showZoomSliderIfSupported: false,
-              rememberLastUsedCamera: true
+              rememberLastUsedCamera: false, // Her seferinde arka kamera seç
+              preferredCamera: "environment",
+              facingMode: "environment",
+              videoConstraints: {
+                facingMode: { exact: "environment" } // Kesinlikle arka kamera
+              }
             },
             false
           );
