@@ -1,0 +1,10 @@
+{
+  "files": {
+    "main.js": "/SpinStatWebApp/static/js/main.d4af54b0.js",
+    "index.html": "/SpinStatWebApp/index.html",
+    "main.d4af54b0.js.map": "/SpinStatWebApp/static/js/main.d4af54b0.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.d4af54b0.js"
+  ]
+}
