@@ -4,10 +4,12 @@ import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { db } from "../firebase";
 import { doc, setDoc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 
 function Auth() {
   const { login, register } = useAuth();
+  const navigate = useNavigate();
 
   const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState("");
@@ -39,6 +41,10 @@ function Auth() {
       } else {
         await login(email, password);
       }
+      
+      // Başarılı giriş/kayıt sonrası anasayfaya yönlendir
+      navigate("/", { replace: true });
+      
     } catch (err) {
       setError(err.message.includes("auth/") 
         ? "E-posta veya şifre hatalı. Lütfen kontrol edin." 

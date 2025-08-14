@@ -222,6 +222,18 @@ const MatchControl = () => {
           <div style={startSection}>
             {/* Input Container */}
             <div style={inputSection}>
+              {/* QR Scanner Button */}
+              <div style={qrButtonContainer}>
+                <button
+                  onClick={startQRScanner}
+                  style={qrScanButton}
+                  disabled={isLoading}
+                >
+                  <span style={qrIcon}>📱</span>
+                  <span>Maçı başlatmak için QR kodu tara</span>
+                </button>
+              </div>
+
               <div style={inputContainer}>
                 <div style={inputIcon}>📍</div>
                 <input
@@ -232,14 +244,6 @@ const MatchControl = () => {
                   style={inputStyle}
                   disabled={isLoading}
                 />
-                <button
-                  onClick={startQRScanner}
-                  style={qrButton}
-                  disabled={isLoading}
-                  title="QR Kod Tara"
-                >
-                  📱
-                </button>
               </div>
               
               {/* Example Codes */}
@@ -500,7 +504,7 @@ const inputIcon = {
 
 const inputStyle = {
   width: "100%",
-  padding: "15px 60px 15px 50px", // Sağdan QR buton için boşluk
+  padding: "15px 15px 15px 50px", // Normal padding'e geri döndü
   fontSize: "16px",
   border: "2px solid #d1fae5",
   borderRadius: "15px",
@@ -508,6 +512,32 @@ const inputStyle = {
   transition: "all 0.3s ease",
   background: "#fafafa",
   color: "#1b4332"
+};
+
+const qrButtonContainer = {
+  marginBottom: "20px"
+};
+
+const qrScanButton = {
+  width: "100%",
+  padding: "15px 20px",
+  background: "linear-gradient(135deg, #8b5cf6, #a855f7)",
+  border: "none",
+  borderRadius: "12px",
+  color: "white",
+  cursor: "pointer",
+  fontSize: "16px",
+  fontWeight: "600",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "10px",
+  transition: "all 0.3s ease",
+  boxShadow: "0 4px 15px rgba(139, 92, 246, 0.3)"
+};
+
+const qrIcon = {
+  fontSize: "20px"
 };
 
 const qrButton = {
@@ -917,6 +947,11 @@ styleElement.textContent = `
   [style*="codeButton"]:hover {
     background: #dcfce7 !important;
     border-color: #86efac !important;
+  }
+  
+  [style*="qrScanButton"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4) !important;
   }
   
   [style*="qrButton"]:hover {
