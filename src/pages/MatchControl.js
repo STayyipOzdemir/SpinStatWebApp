@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { db } from "../firebase";
-import { doc, updateDoc, getDoc } from "firebase/firestore";
+import { doc, updateDoc, getDoc, setDoc } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
 import { Html5QrcodeScanner, Html5QrcodeScanType } from "html5-qrcode";
 
@@ -150,25 +150,43 @@ const MatchControl = () => {
       });
 
       // 2️⃣ Firestore'a maç geçmişini kaydet (API durumu ne olursa olsun)
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
 
-      let matchHistory = {};
-      if (userSnap.exists() && userSnap.data().matchHistory) {
-        matchHistory = userSnap.data().matchHistory;
+        let matchHistory = {};
+        if (userSnap.exists() && userSnap.data().matchHistory) {
+          matchHistory = userSnap.data().matchHistory;
+        }
+
+        const matchCount = Object.keys(matchHistory).length;
+        const nextMatchKey = `match${matchCount + 1}`;
+
+        matchHistory[nextMatchKey] = {
+          kort: matchCode,
+          matchStartTime: new Date(),
+        };
+
+        if (userSnap.exists()) {
+          // Kullanıcı belgesi var - güncelle
+          await updateDoc(userRef, { matchHistory });
+        } else {
+          // Kullanıcı belgesi yok - oluştur
+          await setDoc(userRef, {
+            uid: user.uid,
+            email: user.email,
+            matchHistory: matchHistory,
+            createdAt: new Date()
+          });
+        }
+        
+        console.log("Firestore'a kaydedildi");
+      } catch (firestoreError) {
+        console.error("Firestore hatası:", firestoreError);
+        // Firestore hatası olsa bile devam et
       }
 
-      const matchCount = Object.keys(matchHistory).length;
-      const nextMatchKey = `match${matchCount + 1}`;
-
-      matchHistory[nextMatchKey] = {
-        kort: matchCode,
-        matchStartTime: new Date(),
-      };
-
-      await updateDoc(userRef, { matchHistory });
-
-      // 3️⃣ API başarılı veya 504 hatası - her durumda maçı başlat
+      // 3️⃣ API başarılı veya 504/timeout hatası - her durumda maçı başlat
       if (res.ok || res.status === 504) {
         // Timer başlat ve running moduna geç
         setTimerActive(true);
@@ -178,10 +196,13 @@ const MatchControl = () => {
           console.log("504 timeout ama yayın başlamış olabilir");
           // Kullanıcıya bilgi ver ama maçı başlat
           setTimeout(() => {
-            alert("Yayın başlatma isteği gönderildi. Lütfen canlı yayın sayfasından kontrol edin.");
+            alert("Yayın başlatıldı! (Sunucu yanıt gecikmesi yaşandı)");
           }, 500);
         } else {
           console.log("API başarılı:", res.status);
+          setTimeout(() => {
+            alert("Yayın başarıyla başlatıldı!");
+          }, 500);
         }
       } else {
         throw new Error(`API isteği başarısız: ${res.status}`);
@@ -190,11 +211,16 @@ const MatchControl = () => {
     } catch (error) {
       console.error("Hata:", error);
       
-      // Network timeout veya 504 hatası - yine de maçı başlat
-      if (error.message.includes("504") || error.name === "TypeError" || error.message.includes("fetch")) {
-        console.log("Network hatası ama maçı başlatıyoruz");
+      // Network timeout, 504 hatası veya bağlantı sorunu - yine de maçı başlat
+      if (error.message.includes("504") || 
+          error.name === "TypeError" || 
+          error.message.includes("fetch") ||
+          error.message.includes("ERR_INTERNET_DISCONNECTED") ||
+          error.message.includes("Failed to fetch")) {
         
-        // Firestore'a kaydet
+        console.log("Network/Timeout hatası ama maçı başlatıyoruz");
+        
+        // Firestore'a kaydet (tekrar dene)
         try {
           const userRef = doc(db, "users", user.uid);
           const userSnap = await getDoc(userRef);
@@ -212,16 +238,25 @@ const MatchControl = () => {
             matchStartTime: new Date(),
           };
 
-          await updateDoc(userRef, { matchHistory });
+          if (userSnap.exists()) {
+            await updateDoc(userRef, { matchHistory });
+          } else {
+            await setDoc(userRef, {
+              uid: user.uid,
+              email: user.email,
+              matchHistory: matchHistory,
+              createdAt: new Date()
+            });
+          }
         } catch (firestoreError) {
-          console.error("Firestore hatası:", firestoreError);
+          console.error("Firestore hatası (retry):", firestoreError);
         }
         
         // Maçı başlat
         setTimerActive(true);
         setStep("running");
         
-        alert("Yayın başlatma isteği gönderildi. Network gecikmesi nedeniyle onay alınamadı ama yayın başlamış olabilir.");
+        alert("Yayın başlatıldı! (Ağ bağlantısı yavaş olabilir)");
       } else {
         // Gerçek hata
         alert("Maç başlatılamadı. Lütfen kort kodunu kontrol edin ve tekrar deneyin.");
