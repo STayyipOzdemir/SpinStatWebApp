@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 function Home() {
   const features = [
     {
-      icon: "📺",
+      icon: "🌐",
       title: "Canlı Yayın",
       description: "HD kalitesinde tenis maçlarını canlı izleyin",
       link: "/live",
@@ -38,7 +38,7 @@ function Home() {
       <section style={heroSection}>
         <div style={heroContent}>
           <div style={heroIcon}>🎾</div>
-          <h1 style={heroTitle}>Tennis Live'a Hoş Geldiniz</h1>
+          <h1 style={heroTitle}>SpinStat'a Hoş Geldiniz</h1>
           <p style={heroSubtitle}>
             Profesyonel tenis deneyimini yaşayın. Canlı maçları izleyin, 
             kendi maçlarınızı yönetin ve tenis dünyasının bir parçası olun.
@@ -49,7 +49,7 @@ function Home() {
               Canlı Yayını İzle
             </Link>
             <Link to="/matchcontrol" style={secondaryButton}>
-              <span style={buttonIcon}>🚀</span>
+              <span style={buttonIcon}></span>
               Maça Başla
             </Link>
           </div>
@@ -81,9 +81,8 @@ function Home() {
         </h2>
         <div style={featuresGrid}>
           {features.map((feature, index) => (
-            <Link 
+            <div 
               key={index} 
-              to={feature.link} 
               style={{
                 ...featureCard,
                 background: feature.color
@@ -92,47 +91,13 @@ function Home() {
               <div style={featureIcon}>{feature.icon}</div>
               <h3 style={featureTitle}>{feature.title}</h3>
               <p style={featureDescription}>{feature.description}</p>
-              {feature.link !== "#" && (
-                <div style={featureButton}>
-                  <span>Başla</span>
-                  <span style={arrowIcon}>→</span>
-                </div>
-              )}
               {feature.link === "#" && (
                 <div style={comingSoon}>
                   <span>Yakında</span>
                 </div>
               )}
-            </Link>
+            </div>
           ))}
-        </div>
-      </section>
-
-      {/* Info Section */}
-      <section style={infoSection}>
-        <div style={infoCard}>
-          <div style={infoHeader}>
-            <span style={infoIcon}>ℹ️</span>
-            <h3 style={infoTitle}>Platform Hakkında</h3>
-          </div>
-          <div style={infoContent}>
-            <div style={infoItem}>
-              <span style={checkIcon}>✅</span>
-              <span>HD kalitesinde canlı yayın desteği</span>
-            </div>
-            <div style={infoItem}>
-              <span style={checkIcon}>✅</span>
-              <span>Gerçek zamanlı maç kontrolü</span>
-            </div>
-            <div style={infoItem}>
-              <span style={checkIcon}>✅</span>
-              <span>Kullanıcı dostu arayüz</span>
-            </div>
-            <div style={infoItem}>
-              <span style={checkIcon}>✅</span>
-              <span>Mobil uyumlu tasarım</span>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -330,11 +295,11 @@ const featureCard = {
   padding: "30px",
   borderRadius: "25px",
   color: "white",
-  textDecoration: "none",
   boxShadow: "0 12px 40px rgba(0, 0, 0, 0.2)",
   transition: "all 0.3s ease",
   position: "relative",
-  overflow: "hidden"
+  overflow: "hidden",
+  cursor: "default"
 };
 
 const featureIcon = {
@@ -381,58 +346,6 @@ const comingSoon = {
 
 const arrowIcon = {
   fontSize: "16px"
-};
-
-const infoSection = {
-  padding: "40px 25px",
-  marginBottom: "40px"
-};
-
-const infoCard = {
-  background: "white",
-  borderRadius: "20px",
-  padding: "30px",
-  maxWidth: "600px",
-  margin: "0 auto",
-  boxShadow: "0 8px 32px rgba(45, 90, 39, 0.1)",
-  border: "1px solid rgba(82, 183, 136, 0.2)"
-};
-
-const infoHeader = {
-  display: "flex",
-  alignItems: "center",
-  gap: "10px",
-  marginBottom: "20px"
-};
-
-const infoIcon = {
-  fontSize: "24px"
-};
-
-const infoTitle = {
-  fontSize: "20px",
-  fontWeight: "bold",
-  color: "#1b4332",
-  margin: 0
-};
-
-const infoContent = {
-  display: "flex",
-  flexDirection: "column",
-  gap: "12px"
-};
-
-const infoItem = {
-  display: "flex",
-  alignItems: "center",
-  gap: "12px",
-  fontSize: "16px",
-  color: "#374151"
-};
-
-const checkIcon = {
-  fontSize: "16px",
-  color: "#10b981"
 };
 
 const quickActionsSection = {

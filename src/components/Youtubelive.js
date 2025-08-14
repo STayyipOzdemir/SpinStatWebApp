@@ -35,8 +35,8 @@ const YouTubeLive = () => {
         {/* Kategori Seçimi */}
         <div style={selectorGroup}>
           <label style={labelStyle}>
-            <span style={labelIcon}>🏆</span>
-            <span style={labelText}>Kategori:</span>
+            <span style={labelIcon}></span>
+            <span style={labelText}>Spor Kompleksi:</span>
           </label>
           <select 
             value={selectedCategory} 

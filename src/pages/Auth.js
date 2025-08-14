@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { db } from "../firebase";
 import { doc, setDoc } from "firebase/firestore";
+import logo from "../assets/logo.png";
 
 function Auth() {
   const { login, register } = useAuth();
@@ -11,6 +12,8 @@ function Auth() {
   const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -27,7 +30,8 @@ function Auth() {
         await setDoc(doc(db, "users", user.uid), {
           uid: user.uid,
           email: user.email,
-          isim: user.email,
+          name: name,
+          username: username,
           createdAt: new Date(),
         });
 
@@ -52,12 +56,12 @@ function Auth() {
       {/* Header */}
       <div style={headerSection}>
         <div style={logoContainer}>
-          <div style={tennisIcon}>🎾</div>
-          <h1 style={appTitle}>Tennis Live</h1>
+          <img src={logo} alt="SpinStat Logo" style={logoStyle} />
+          <h1 style={appTitle}>SpinStat</h1>
         </div>
         <p style={welcomeText}>
           {isRegister 
-            ? "Yeni hesap oluşturun ve tenis dünyasına katılın!" 
+            ? "Yeni hesap oluşturun ve SpinStat dünyasına katılın!" 
             : "Hoş geldiniz! Giriş yaparak devam edin."}
         </p>
       </div>
@@ -67,31 +71,62 @@ function Auth() {
         {/* Tab Buttons */}
         <div style={tabContainer}>
           <button
-            onClick={() => setIsRegister(false)}
+            onClick={() => {
+              setIsRegister(false);
+              setError("");
+            }}
             style={{
               ...tabButton,
               ...(isRegister ? inactiveTab : activeTab)
             }}
           >
-            <span style={tabIcon}>🏠</span>
             <span style={tabText}>Giriş Yap</span>
           </button>
           <button
-            onClick={() => setIsRegister(true)}
+            onClick={() => {
+              setIsRegister(true);
+              setError("");
+            }}
             style={{
               ...tabButton,
               ...(!isRegister ? inactiveTab : activeTab)
             }}
           >
-            <span style={tabIcon}>✨</span>
             <span style={tabText}>Kayıt Ol</span>
           </button>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} style={formStyle}>
+          {isRegister && (
+            <>
+              <div style={inputContainer}>
+                <input
+                  type="text"
+                  placeholder="Adınızı ve soyadınızı girin"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  style={inputStyle}
+                  disabled={isLoading}
+                />
+              </div>
+
+              <div style={inputContainer}>
+                <input
+                  type="text"
+                  placeholder="Kullanıcı adınızı girin"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  style={inputStyle}
+                  disabled={isLoading}
+                />
+              </div>
+            </>
+          )}
+
           <div style={inputContainer}>
-            <div style={inputIcon}>📧</div>
             <input
               type="email"
               placeholder="E-posta adresinizi girin"
@@ -104,7 +139,6 @@ function Auth() {
           </div>
 
           <div style={inputContainer}>
-            <div style={inputIcon}>🔒</div>
             <input
               type="password"
               placeholder="Şifrenizi girin"
@@ -125,17 +159,9 @@ function Auth() {
             disabled={isLoading}
           >
             {isLoading ? (
-              <>
-                <span style={loadingSpinner}>⏳</span>
-                <span>{isRegister ? "Kayıt Yapılıyor..." : "Giriş Yapılıyor..."}</span>
-              </>
+              <span>{isRegister ? "Kayıt Yapılıyor..." : "Giriş Yapılıyor..."}</span>
             ) : (
-              <>
-                <span style={buttonIcon}>
-                  {isRegister ? "🚀" : "🔐"}
-                </span>
-                <span>{isRegister ? "Hesap Oluştur" : "Giriş Yap"}</span>
-              </>
+              <span>{isRegister ? "Hesap Oluştur" : "Giriş Yap"}</span>
             )}
           </button>
         </form>
@@ -143,7 +169,6 @@ function Auth() {
         {/* Error Message */}
         {error && (
           <div style={errorContainer}>
-            <span style={errorIcon}>⚠️</span>
             <span style={errorText}>{error}</span>
           </div>
         )}
@@ -156,6 +181,8 @@ function Auth() {
               onClick={() => {
                 setIsRegister(!isRegister);
                 setError("");
+                setName("");
+                setUsername("");
               }} 
               style={switchButton}
               disabled={isLoading}
@@ -169,8 +196,7 @@ function Auth() {
       {/* Footer */}
       <div style={footerStyle}>
         <div style={footerContent}>
-          <span style={footerIcon}>🏆</span>
-          <span style={footerText}>Tennis Live - Profesyonel Tenis Deneyimi</span>
+          <span style={footerText}>SpinStat - Profesyonel Tenis İstatistik Platformu</span>
         </div>
       </div>
     </div>
@@ -220,10 +246,12 @@ const logoContainer = {
   flexWrap: "wrap"
 };
 
-const tennisIcon = {
-  fontSize: "clamp(32px, 8vw, 48px)",
-  filter: "drop-shadow(0 0 20px rgba(255, 255, 255, 0.5))",
-  animation: "bounce 2s infinite"
+const logoStyle = {
+  width: "clamp(80px, 20vw, 120px)",
+  height: "clamp(60px, 15vw, 90px)",
+  objectFit: "contain",
+  filter: "drop-shadow(0 4px 15px rgba(255, 255, 255, 0.3))",
+  borderRadius: "16px"
 };
 
 const appTitle = {
@@ -276,7 +304,6 @@ const tabButton = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  gap: "clamp(6px, 2vw, 8px)",
   transition: "all 0.3s ease",
   minHeight: "44px"
 };
@@ -290,10 +317,6 @@ const activeTab = {
 const inactiveTab = {
   background: "transparent",
   color: "#52b788"
-};
-
-const tabIcon = {
-  fontSize: "clamp(16px, 4vw, 18px)"
 };
 
 const tabText = {
@@ -312,17 +335,9 @@ const inputContainer = {
   alignItems: "center"
 };
 
-const inputIcon = {
-  position: "absolute",
-  left: "clamp(12px, 3vw, 15px)",
-  fontSize: "clamp(16px, 4vw, 18px)",
-  zIndex: 1,
-  color: "#52b788"
-};
-
 const inputStyle = {
   width: "100%",
-  padding: "clamp(12px, 3vw, 15px) clamp(12px, 3vw, 15px) clamp(12px, 3vw, 15px) clamp(40px, 10vw, 50px)",
+  padding: "clamp(12px, 3vw, 15px)",
   fontSize: "clamp(14px, 3vw, 16px)",
   border: "2px solid #d1fae5",
   borderRadius: "clamp(10px, 3vw, 15px)",
@@ -349,22 +364,12 @@ const submitButton = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  gap: "clamp(8px, 2vw, 10px)",
   minHeight: "50px"
 };
 
 const disabledButton = {
   opacity: 0.7,
   cursor: "not-allowed"
-};
-
-const buttonIcon = {
-  fontSize: "clamp(18px, 4vw, 20px)"
-};
-
-const loadingSpinner = {
-  fontSize: "clamp(16px, 4vw, 18px)",
-  animation: "spin 1s linear infinite"
 };
 
 const errorContainer = {
@@ -374,20 +379,16 @@ const errorContainer = {
   padding: "clamp(12px, 3vw, 15px)",
   display: "flex",
   alignItems: "center",
-  gap: "clamp(8px, 2vw, 10px)",
+  justifyContent: "center",
   marginTop: "clamp(10px, 3vw, 15px)"
-};
-
-const errorIcon = {
-  fontSize: "clamp(16px, 4vw, 18px)",
-  flexShrink: 0
 };
 
 const errorText = {
   color: "#dc2626",
   fontSize: "clamp(12px, 3vw, 14px)",
   fontWeight: "500",
-  lineHeight: 1.4
+  lineHeight: 1.4,
+  textAlign: "center"
 };
 
 const switchContainer = {
@@ -426,15 +427,9 @@ const footerContent = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  gap: "clamp(6px, 2vw, 8px)",
   color: "white",
   opacity: 0.8,
   flexWrap: "wrap"
-};
-
-const footerIcon = {
-  fontSize: "clamp(16px, 4vw, 20px)",
-  flexShrink: 0
 };
 
 const footerText = {
@@ -445,17 +440,6 @@ const footerText = {
 // Mobile responsive animations and effects
 const styleElement = document.createElement('style');
 styleElement.textContent = `
-  @keyframes bounce {
-    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-    40% { transform: translateY(-10px); }
-    60% { transform: translateY(-5px); }
-  }
-  
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-  
   input:focus {
     border-color: #40916c !important;
     box-shadow: 0 0 0 3px rgba(64, 145, 108, 0.1) !important;
@@ -520,8 +504,9 @@ styleElement.textContent = `
       margin-bottom: 15px !important;
     }
     
-    [style*="tennisIcon"] {
-      font-size: 32px !important;
+    [style*="logoStyle"] {
+      width: 80px !important;
+      height: 60px !important;
     }
     
     [style*="appTitle"] {
@@ -548,13 +533,6 @@ styleElement.textContent = `
     button:hover:not(:disabled) {
       transform: translateY(-2px);
       box-shadow: 0 8px 25px rgba(64, 145, 108, 0.4) !important;
-    }
-  }
-  
-  /* High DPI displays */
-  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-    [style*="tennisIcon"] {
-      filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5)) !important;
     }
   }
 `;
