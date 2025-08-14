@@ -196,7 +196,7 @@ const MatchControl = () => {
           console.log("504 timeout ama yayın başlamış olabilir");
           // Kullanıcıya bilgi ver ama maçı başlat
           setTimeout(() => {
-            alert("Yayın başlatıldı! (Sunucu yanıt gecikmesi yaşandı)");
+           
           }, 500);
         } else {
           console.log("API başarılı:", res.status);
@@ -259,7 +259,6 @@ const MatchControl = () => {
         alert("Yayın başlatıldı! (Ağ bağlantısı yavaş olabilir)");
       } else {
         // Gerçek hata
-        alert("Maç başlatılamadı. Lütfen kort kodunu kontrol edin ve tekrar deneyin.");
       }
     } finally {
       setIsLoading(false);
