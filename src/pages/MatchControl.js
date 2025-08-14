@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { db } from "../firebase";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
-import { Html5QrcodeScanner } from "html5-qrcode";
+import { Html5QrcodeScanner, Html5QrcodeScanType } from "html5-qrcode";
 
 const MatchControl = () => {
   const { user } = useAuth();
@@ -44,8 +44,8 @@ const MatchControl = () => {
               qrbox: { width: 250, height: 250 },
               aspectRatio: 1.0,
               showTorchButtonIfSupported: true,
-              showZoomSliderIfSupported: true,
-              defaultZoomValueIfSupported: 2,
+              showZoomSliderIfSupported: false,
+              rememberLastUsedCamera: true
             },
             false
           );
@@ -73,8 +73,17 @@ const MatchControl = () => {
               });
             },
             (error) => {
-              // QR kod okuma hatası (normal, sürekli dener)
-              // Bu hataları log'lama, çok fazla noise yaratır
+              // QR kod okuma hatası - error objesini güvenli şekilde handle et
+              if (error && typeof error === 'string') {
+                // String hata mesajları
+                console.log("QR tarama devam ediyor:", error);
+              } else if (error && error.message) {
+                // Error objesi
+                console.log("QR tarama devam ediyor:", error.message);
+              } else {
+                // Undefined veya beklenmeyen format
+                console.log("QR tarama devam ediyor...");
+              }
             }
           );
 
@@ -177,8 +186,8 @@ const MatchControl = () => {
 
     setIsLoading(true);
     try {
-      // 1️ API isteği
-      const res = await fetch(`https://e97aeec9e2a3.ngrok-free.app/v1/courts/${matchCode}/control`, {
+      // 1️ API isteği  https://3e97fe1c9e26.ngrok-free.app/v1/courts/court-001/control
+      const res = await fetch(`https://3e97fe1c9e26.ngrok-free.app/v1/courts/${matchCode}/control`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
