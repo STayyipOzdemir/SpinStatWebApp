@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { db } from "../firebase";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
+import { Html5QrcodeScanner } from "html5-qrcode";
 
 const MatchControl = () => {
   const { user } = useAuth();
@@ -11,9 +12,8 @@ const MatchControl = () => {
   const [timerActive, setTimerActive] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
-  const [stream, setStream] = useState(null);
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
+  const [qrScanner, setQrScanner] = useState(null);
+  const qrScannerRef = useRef(null);
 
   useEffect(() => {
     let interval = null;
@@ -30,75 +30,69 @@ const MatchControl = () => {
   // QR Scanner için kamera başlatma
   const startQRScanner = async () => {
     try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' } // Arka kamera
-      });
-      setStream(mediaStream);
       setShowQRScanner(true);
       
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-      }
+      // Biraz bekleyip DOM'un hazır olmasını sağla
+      setTimeout(() => {
+        if (qrScannerRef.current) {
+          const scanner = new Html5QrcodeScanner(
+            "qr-scanner-container",
+            {
+              fps: 10,
+              qrbox: { width: 250, height: 250 },
+              aspectRatio: 1.0,
+              showTorchButtonIfSupported: true,
+              showZoomSliderIfSupported: true,
+              defaultZoomValueIfSupported: 2,
+            },
+            false
+          );
+
+          scanner.render(
+            (decodedText, decodedResult) => {
+              // QR kod başarıyla okundu
+              console.log("QR kod okundu:", decodedText);
+              setMatchCode(decodedText);
+              stopQRScanner();
+              alert(`QR Kod okundu: ${decodedText}`);
+            },
+            (error) => {
+              // QR kod okuma hatası (normal, sürekli dener)
+              console.log("QR tarama devam ediyor...", error);
+            }
+          );
+
+          setQrScanner(scanner);
+        }
+      }, 100);
     } catch (error) {
-      console.error('Kamera erişimi başarısız:', error);
-      alert('Kamera erişimi reddedildi. Lütfen kamera izinlerini kontrol edin.');
+      console.error('QR Scanner başlatılamadı:', error);
+      alert('QR Scanner başlatılamadı. Lütfen kamera izinlerini kontrol edin.');
+      setShowQRScanner(false);
     }
   };
 
   // QR Scanner kapatma
   const stopQRScanner = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
+    if (qrScanner) {
+      qrScanner.clear().then(() => {
+        console.log("QR Scanner temizlendi");
+      }).catch(error => {
+        console.error("QR Scanner temizlenirken hata:", error);
+      });
+      setQrScanner(null);
     }
     setShowQRScanner(false);
   };
 
-  // QR kod tarama fonksiyonu (basit yaklaşım)
-  const scanQRCode = () => {
-    if (!videoRef.current || !canvasRef.current) return;
-
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    // Gerçek QR kod okuma için jsQR kütüphanesi gerekli
-    // Şimdilik demo amaçlı bir kod ekleyelim
-    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-    
-    // jsQR import edildiğinde bu satır aktif olacak:
-    // const code = jsQR(imageData.data, imageData.width, imageData.height);
-    
-    // Demo için rastgele bir court kodu üretelim
-    if (Math.random() > 0.7) { // %30 şansla kod bulundu simülasyonu
-      const demoCodes = ['court-001', 'court-002', 'court-003'];
-      const randomCode = demoCodes[Math.floor(Math.random() * demoCodes.length)];
-      setMatchCode(randomCode);
-      stopQRScanner();
-      alert(`QR Kod okundu: ${randomCode}`);
-    }
-  };
-
-  // QR tarama döngüsü
-  useEffect(() => {
-    if (showQRScanner && videoRef.current) {
-      const interval = setInterval(scanQRCode, 1000); // Her saniye tara
-      return () => clearInterval(interval);
-    }
-  }, [showQRScanner]);
-
-  // Component unmount olduğunda kamerayı kapat
+  // Component unmount olduğunda QR scanner'ı temizle
   useEffect(() => {
     return () => {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
+      if (qrScanner) {
+        qrScanner.clear().catch(console.error);
       }
     };
-  }, [stream]);
+  }, [qrScanner]);
 
   const handleMatchStart = async () => {
     if (!matchCode || !user) {
@@ -392,20 +386,12 @@ const MatchControl = () => {
               <button onClick={stopQRScanner} style={closeButton}>✕</button>
             </div>
             
-            <div style={qrVideoContainer}>
-              <video
-                ref={videoRef}
-                style={qrVideo}
-                autoPlay
-                playsInline
-                muted
-              />
-              <canvas ref={canvasRef} style={{ display: 'none' }} />
-              
-              <div style={scanOverlay}>
-                <div style={scanFrame}></div>
-                <p style={scanText}>QR kodu çerçeve içine hizalayın</p>
-              </div>
+            <div style={qrScannerContainer}>
+              <div 
+                id="qr-scanner-container" 
+                ref={qrScannerRef}
+                style={qrScannerElement}
+              ></div>
             </div>
             
             <div style={qrActions}>
@@ -853,6 +839,18 @@ const closeButton = {
   justifyContent: "center"
 };
 
+const qrScannerContainer = {
+  width: "100%",
+  maxWidth: "400px",
+  margin: "15px 0"
+};
+
+const qrScannerElement = {
+  width: "100%",
+  borderRadius: "15px",
+  overflow: "hidden"
+};
+
 const qrVideoContainer = {
   position: "relative",
   width: "100%",
@@ -957,6 +955,35 @@ styleElement.textContent = `
   [style*="qrButton"]:hover {
     transform: scale(1.05);
     box-shadow: 0 4px 12px rgba(64, 145, 108, 0.4) !important;
+  }
+
+  /* HTML5 QR Code Scanner stilleri */
+  #qr-scanner-container {
+    border-radius: 15px !important;
+    overflow: hidden !important;
+  }
+  
+  #qr-scanner-container video {
+    border-radius: 15px !important;
+  }
+  
+  #qr-scanner-container > div {
+    border: none !important;
+  }
+  
+  /* QR Scanner butonlarını özelleştir */
+  #qr-scanner-container button {
+    background: #40916c !important;
+    border: none !important;
+    border-radius: 8px !important;
+    color: white !important;
+    padding: 8px 16px !important;
+    margin: 5px !important;
+    font-weight: 500 !important;
+  }
+  
+  #qr-scanner-container button:hover {
+    background: #52b788 !important;
   }
 `;
 document.head.appendChild(styleElement);
