@@ -137,7 +137,7 @@ const MatchControl = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: "start",
+          action: "start-stream",
           userId: user.uid,
           source: "admin",
           meta: { quality: "1080p", duration: 3600 }
@@ -186,14 +186,15 @@ const MatchControl = () => {
 
     setIsLoading(true);
     try {
-      // 1️ API isteği  https://3e97fe1c9e26.ngrok-free.app/v1/courts/court-001/control
+      // 1️ API isteği
       const res = await fetch(`https://3e97fe1c9e26.ngrok-free.app/v1/courts/${matchCode}/control`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: "stop",
+          action: "stop-stream",
           userId: user.uid,
-          source: "admin"
+          source: "admin",
+          meta: { quality: "1080p", duration: 3600 }
         })
       });
 
