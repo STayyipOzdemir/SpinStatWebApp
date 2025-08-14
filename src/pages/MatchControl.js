@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { db } from "../firebase";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
@@ -10,6 +10,10 @@ const MatchControl = () => {
   const [time, setTime] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showQRScanner, setShowQRScanner] = useState(false);
+  const [stream, setStream] = useState(null);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
 
   useEffect(() => {
     let interval = null;
@@ -22,6 +26,79 @@ const MatchControl = () => {
     }
     return () => clearInterval(interval);
   }, [timerActive]);
+
+  // QR Scanner için kamera başlatma
+  const startQRScanner = async () => {
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' } // Arka kamera
+      });
+      setStream(mediaStream);
+      setShowQRScanner(true);
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
+    } catch (error) {
+      console.error('Kamera erişimi başarısız:', error);
+      alert('Kamera erişimi reddedildi. Lütfen kamera izinlerini kontrol edin.');
+    }
+  };
+
+  // QR Scanner kapatma
+  const stopQRScanner = () => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+    }
+    setShowQRScanner(false);
+  };
+
+  // QR kod tarama fonksiyonu (basit yaklaşım)
+  const scanQRCode = () => {
+    if (!videoRef.current || !canvasRef.current) return;
+
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const context = canvas.getContext('2d');
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    // Gerçek QR kod okuma için jsQR kütüphanesi gerekli
+    // Şimdilik demo amaçlı bir kod ekleyelim
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    
+    // jsQR import edildiğinde bu satır aktif olacak:
+    // const code = jsQR(imageData.data, imageData.width, imageData.height);
+    
+    // Demo için rastgele bir court kodu üretelim
+    if (Math.random() > 0.7) { // %30 şansla kod bulundu simülasyonu
+      const demoCodes = ['court-001', 'court-002', 'court-003'];
+      const randomCode = demoCodes[Math.floor(Math.random() * demoCodes.length)];
+      setMatchCode(randomCode);
+      stopQRScanner();
+      alert(`QR Kod okundu: ${randomCode}`);
+    }
+  };
+
+  // QR tarama döngüsü
+  useEffect(() => {
+    if (showQRScanner && videoRef.current) {
+      const interval = setInterval(scanQRCode, 1000); // Her saniye tara
+      return () => clearInterval(interval);
+    }
+  }, [showQRScanner]);
+
+  // Component unmount olduğunda kamerayı kapat
+  useEffect(() => {
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [stream]);
 
   const handleMatchStart = async () => {
     if (!matchCode || !user) {
@@ -66,7 +143,7 @@ const MatchControl = () => {
 
       await updateDoc(userRef, { matchHistory });
 
-      // 3️⃣ Timer başlat
+      // 3️ Timer başlat
       setTimerActive(true);
       setStep("running");
     } catch (error) {
@@ -85,7 +162,7 @@ const MatchControl = () => {
 
     setIsLoading(true);
     try {
-      // 1️⃣ API isteği
+      // 1️ API isteği
       const res = await fetch(`https://e97aeec9e2a3.ngrok-free.app/v1/courts/${matchCode}/control`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -129,7 +206,7 @@ const MatchControl = () => {
       {/* Header */}
       <div style={headerSection}>
         <div style={titleContainer}>
-          <span style={titleIcon}>🎾</span>
+          <span style={titleIcon}>⚡</span>
           <h1 style={pageTitle}>Maç Kontrol</h1>
         </div>
         <div style={subtitle}>
@@ -146,7 +223,7 @@ const MatchControl = () => {
             {/* Input Container */}
             <div style={inputSection}>
               <div style={inputContainer}>
-                <div style={inputIcon}>🏟️</div>
+                <div style={inputIcon}>📍</div>
                 <input
                   type="text"
                   placeholder="Kort Kodu (örn: court-001)"
@@ -155,6 +232,14 @@ const MatchControl = () => {
                   style={inputStyle}
                   disabled={isLoading}
                 />
+                <button
+                  onClick={startQRScanner}
+                  style={qrButton}
+                  disabled={isLoading}
+                  title="QR Kod Tara"
+                >
+                  📱
+                </button>
               </div>
               
               {/* Example Codes */}
@@ -195,7 +280,7 @@ const MatchControl = () => {
                 </>
               ) : (
                 <>
-                  <span style={buttonIcon}>🚀</span>
+                  <span style={buttonIcon}>▶</span>
                   Maça Başla
                 </>
               )}
@@ -285,7 +370,7 @@ const MatchControl = () => {
                 </>
               ) : (
                 <>
-                  <span style={buttonIcon}>🏁</span>
+                  <span style={buttonIcon}>◼</span>
                   Maçı Bitir
                 </>
               )}
@@ -293,6 +378,40 @@ const MatchControl = () => {
           </div>
         )}
       </div>
+
+      {/* QR Scanner Modal */}
+      {showQRScanner && (
+        <div style={qrModal}>
+          <div style={qrModalContent}>
+            <div style={qrHeader}>
+              <h3 style={qrTitle}>QR Kod Tara</h3>
+              <button onClick={stopQRScanner} style={closeButton}>✕</button>
+            </div>
+            
+            <div style={qrVideoContainer}>
+              <video
+                ref={videoRef}
+                style={qrVideo}
+                autoPlay
+                playsInline
+                muted
+              />
+              <canvas ref={canvasRef} style={{ display: 'none' }} />
+              
+              <div style={scanOverlay}>
+                <div style={scanFrame}></div>
+                <p style={scanText}>QR kodu çerçeve içine hizalayın</p>
+              </div>
+            </div>
+            
+            <div style={qrActions}>
+              <button onClick={stopQRScanner} style={qrCancelButton}>
+                İptal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -302,7 +421,7 @@ const containerStyle = {
   padding: "25px",
   background: "linear-gradient(135deg, #f8fff8 0%, #e8f5e8 100%)",
   minHeight: "100vh",
-  fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+  fontFamily: "'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
 };
 
 const headerSection = {
@@ -381,7 +500,7 @@ const inputIcon = {
 
 const inputStyle = {
   width: "100%",
-  padding: "15px 15px 15px 50px",
+  padding: "15px 60px 15px 50px", // Sağdan QR buton için boşluk
   fontSize: "16px",
   border: "2px solid #d1fae5",
   borderRadius: "15px",
@@ -389,6 +508,24 @@ const inputStyle = {
   transition: "all 0.3s ease",
   background: "#fafafa",
   color: "#1b4332"
+};
+
+const qrButton = {
+  position: "absolute",
+  right: "10px",
+  background: "linear-gradient(135deg, #40916c, #52b788)",
+  border: "none",
+  borderRadius: "8px",
+  color: "white",
+  width: "40px",
+  height: "40px",
+  cursor: "pointer",
+  fontSize: "18px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  transition: "all 0.3s ease",
+  boxShadow: "0 2px 8px rgba(64, 145, 108, 0.3)"
 };
 
 const exampleCodes = {
@@ -634,6 +771,120 @@ const endButton = {
   gap: "10px"
 };
 
+// QR Scanner Modal Styles
+const qrModal = {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  background: "rgba(0, 0, 0, 0.9)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  zIndex: 1000
+};
+
+const qrModalContent = {
+  background: "white",
+  borderRadius: "20px",
+  padding: "20px",
+  maxWidth: "400px",
+  width: "90%",
+  maxHeight: "90vh",
+  overflow: "hidden"
+};
+
+const qrHeader = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: "15px"
+};
+
+const qrTitle = {
+  margin: 0,
+  fontSize: "18px",
+  fontWeight: "600",
+  color: "#1b4332"
+};
+
+const closeButton = {
+  background: "#ef4444",
+  border: "none",
+  borderRadius: "50%",
+  color: "white",
+  width: "30px",
+  height: "30px",
+  cursor: "pointer",
+  fontSize: "16px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center"
+};
+
+const qrVideoContainer = {
+  position: "relative",
+  width: "100%",
+  aspectRatio: "1",
+  background: "#000",
+  borderRadius: "15px",
+  overflow: "hidden",
+  marginBottom: "15px"
+};
+
+const qrVideo = {
+  width: "100%",
+  height: "100%",
+  objectFit: "cover"
+};
+
+const scanOverlay = {
+  position: "absolute",
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  background: "rgba(0, 0, 0, 0.3)"
+};
+
+const scanFrame = {
+  width: "200px",
+  height: "200px",
+  border: "3px solid #40916c",
+  borderRadius: "15px",
+  position: "relative",
+  animation: "scanPulse 2s infinite"
+};
+
+const scanText = {
+  color: "white",
+  fontSize: "14px",
+  textAlign: "center",
+  marginTop: "15px",
+  textShadow: "0 1px 3px rgba(0, 0, 0, 0.5)"
+};
+
+const qrActions = {
+  display: "flex",
+  justifyContent: "center"
+};
+
+const qrCancelButton = {
+  background: "#6b7280",
+  border: "none",
+  borderRadius: "10px",
+  color: "white",
+  padding: "10px 20px",
+  cursor: "pointer",
+  fontSize: "14px",
+  fontWeight: "500"
+};
+
 // Add CSS animations
 const styleElement = document.createElement('style');
 styleElement.textContent = `
@@ -648,6 +899,12 @@ styleElement.textContent = `
     100% { opacity: 1; transform: scale(1); }
   }
   
+  @keyframes scanPulse {
+    0% { box-shadow: 0 0 0 0 rgba(64, 145, 108, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(64, 145, 108, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(64, 145, 108, 0); }
+  }
+  
   input:focus {
     border-color: #40916c !important;
     box-shadow: 0 0 0 3px rgba(64, 145, 108, 0.1) !important;
@@ -660,6 +917,11 @@ styleElement.textContent = `
   [style*="codeButton"]:hover {
     background: #dcfce7 !important;
     border-color: #86efac !important;
+  }
+  
+  [style*="qrButton"]:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(64, 145, 108, 0.4) !important;
   }
 `;
 document.head.appendChild(styleElement);

@@ -22,7 +22,6 @@ const YouTubeLive = () => {
       {/* Header */}
       <div style={headerSection}>
         <div style={titleContainer}>
-          <span style={titleIcon}>📺</span>
           <h1 style={pageTitle}>Canlı Yayın</h1>
         </div>
         <div style={subtitle}>
@@ -179,10 +178,7 @@ const titleContainer = {
   flexWrap: "wrap"
 };
 
-const titleIcon = {
-  fontSize: "clamp(24px, 6vw, 32px)",
-  filter: "drop-shadow(0 0 8px rgba(45, 90, 39, 0.3))"
-};
+
 
 const pageTitle = {
   margin: 0,
