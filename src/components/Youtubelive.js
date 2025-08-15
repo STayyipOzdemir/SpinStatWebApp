@@ -140,12 +140,7 @@ const YouTubeLive = () => {
             <strong>Platform:</strong> YouTube Live
           </div>
         </div>
-        <div style={infoItem}>
-          <span style={infoIcon}>⚡</span>
-          <div style={infoText}>
-            <strong>Gecikme:</strong> ~5 saniye
-          </div>
-        </div>
+       
       </div>
     </div>
   );
