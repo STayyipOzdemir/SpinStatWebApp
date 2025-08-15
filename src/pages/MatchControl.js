@@ -46,6 +46,8 @@ const MatchControl = () => {
               showTorchButtonIfSupported: true,
               showZoomSliderIfSupported: false,
               rememberLastUsedCamera: false, // Her seferinde arka kamera seç
+              showPermissionButton: false,
+              showStartStopButton: false,
               preferredCamera: "environment",
               facingMode: "environment",
               videoConstraints: {
