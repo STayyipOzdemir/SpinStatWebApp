@@ -1,11 +1,11 @@
 {
   "files": {
-    "main.js": "/SpinStatWebApp/static/js/main.1a775df7.js",
+    "main.js": "/SpinStatWebApp/static/js/main.bb883be2.js",
     "static/media/logo.png": "/SpinStatWebApp/static/media/logo.af464a0e4a7f83666ed3.png",
     "index.html": "/SpinStatWebApp/index.html",
-    "main.1a775df7.js.map": "/SpinStatWebApp/static/js/main.1a775df7.js.map"
+    "main.bb883be2.js.map": "/SpinStatWebApp/static/js/main.bb883be2.js.map"
   },
   "entrypoints": [
-    "static/js/main.1a775df7.js"
+    "static/js/main.bb883be2.js"
   ]
 }
