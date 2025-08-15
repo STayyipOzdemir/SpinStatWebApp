@@ -45,7 +45,7 @@ const MatchControl = () => {
               aspectRatio: 1.0,
               showTorchButtonIfSupported: true,
               showZoomSliderIfSupported: false,
-              rememberLastUsedCamera: false, // Her seferinde arka kamera seç
+              rememberLastUsedCamera: true,
               showPermissionButton: false,
               showStartStopButton: false,
               preferredCamera: "environment",
