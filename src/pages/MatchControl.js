@@ -46,102 +46,11 @@ const MatchControl = () => {
               showTorchButtonIfSupported: true,
               showZoomSliderIfSupported: false,
               rememberLastUsedCamera: false, // Her seferinde arka kamera seç
-              preferredCamera: "environment",
-              facingMode: "environment",
-              // Biraz bekleyip DOM'un hazır olmasını sağla
-      setTimeout(() => {
-        if (qrScannerRef.current) {
-          const scanner = new Html5QrcodeScanner(
-            "qr-scanner-container",
-            {
-              fps: 10,
-              qrbox: { width: 250, height: 250 },
-              aspectRatio: 1.0,
-              showTorchButtonIfSupported: true,
-              showZoomSliderIfSupported: false,
-              rememberLastUsedCamera: false,
-              // Kamera seçim menüsünü gizle
               disableFlip: true, // Ön/arka kamera değiştirme butonunu kapatır
               videoConstraints: {
                 facingMode: { exact: "environment" } // Kesinlikle arka kamera
               }
             },
-            false
-          );
-
-          scanner.render(
-            (decodedText, decodedResult) => {
-              // QR kod başarıyla okundu
-              console.log("QR kod okundu:", decodedText);
-              setMatchCode(decodedText);
-              setQrMessage(`QR kod başarıyla okundu: ${decodedText}`);
-              setQrSuccess(true);
-              
-              // Scanner'ı hemen temizle
-              scanner.clear().then(() => {
-                setQrScanner(null);
-                setShowQRScanner(false);
-                
-                // 3 saniye sonra mesajı gizle
-                setTimeout(() => {
-                  setQrSuccess(false);
-                  setQrMessage("");
-                }, 3000);
-              }).catch(error => {
-                console.error("Scanner temizlenirken hata:", error);
-              });
-            },
-            (error) => {
-              // QR kod okuma hatası - error objesini güvenli şekilde handle et
-              if (error && typeof error === 'string') {
-                // String hata mesajları
-                console.log("QR tarama devam ediyor:", error);
-              } else if (error && error.message) {
-                // Error objesi
-                console.log("QR tarama devam ediyor:", error.message);
-              } else {
-                // Undefined veya beklenmeyen format
-                console.log("QR tarama devam ediyor...");
-              }
-            }
-          );
-
-          setQrScanner(scanner);
-        }
-      }, 100);
-    } catch (error) {
-      console.error('QR Scanner başlatılamadı:', error);
-      alert('QR Scanner başlatılamadı. Lütfen kamera izinlerini kontrol edin.');
-      setShowQRScanner(false);
-    }
-  };
-
-  // QR Scanner kapatma
-  const stopQRScanner = () => {
-    if (qrScanner) {
-      qrScanner.clear().then(() => {
-        console.log("QR Scanner temizlendi");
-        setQrScanner(null);
-        setShowQRScanner(false);
-      }).catch(error => {
-        console.error("QR Scanner temizlenirken hata:", error);
-        // Hata olsa bile state'i temizle
-        setQrScanner(null);
-        setShowQRScanner(false);
-      });
-    } else {
-      setShowQRScanner(false);
-    }
-  };
-
-  // Component unmount olduğunda QR scanner'ı temizle
-  useEffect(() => {
-    return () => {
-      if (qrScanner) {
-        qrScanner.clear().catch(console.error);
-      }
-    };
-  }, [qrScanner]);
             false
           );
 
