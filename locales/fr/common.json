@@ -1,0 +1,41 @@
+{
+  "brand": "SpinStat",
+  "logout": "Déconnexion",
+  "nav": {
+    "home": "Accueil",
+    "live": "Diffusion en direct",
+    "matchControl": "Contrôle du match"
+  },
+  "home": {
+    "welcome": "Bienvenue sur SpinStat",
+    "subtitle": "Vivez l'expérience du tennis professionnel. Regardez des matchs en direct, gérez vos propres matchs et faites partie du monde du tennis.",
+    "buttons": {
+      "watchLive": "Regarder en direct",
+      "startMatch": "Commencer un match"
+    },
+    "sections": {
+      "stats": "Statistiques de la plateforme",
+      "features": "Fonctionnalités"
+    },
+    "comingSoon": "Bientôt disponible"
+  },
+  "stats": {
+    "liveStream": "Diffusion en direct",
+    "activeCourts": "Courts actifs",
+    "videoQuality": "Qualité vidéo"
+  },
+  "features": {
+    "live": {
+      "title": "Diffusion en direct",
+      "description": "Regardez les matchs de tennis en qualité HD en direct"
+    },
+    "matchControl": {
+      "title": "Contrôle du match",
+      "description": "Démarrez et gérez vos matchs"
+    },
+    "tournaments": {
+      "title": "Tournois",
+      "description": "Bientôt : Système de suivi des tournois"
+    }
+  }
+}

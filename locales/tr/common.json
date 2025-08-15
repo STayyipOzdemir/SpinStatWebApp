@@ -1,0 +1,41 @@
+{
+  "brand": "SpinStat",
+  "logout": "Çıkış",
+  "nav": {
+    "home": "Ana Sayfa",
+    "live": "Canlı Yayın",
+    "matchControl": "Maç Kontrol"
+  },
+  "home": {
+    "welcome": "SpinStat'a Hoş Geldiniz",
+    "subtitle": "Profesyonel tenis deneyimini yaşayın. Canlı maçları izleyin, kendi maçlarınızı yönetin ve tenis dünyasının bir parçası olun.",
+    "buttons": {
+      "watchLive": "Canlı Yayını İzle",
+      "startMatch": "Maça Başla"
+    },
+    "sections": {
+      "stats": "Platform İstatistikleri",
+      "features": "Özellikler"
+    },
+    "comingSoon": "Yakında"
+  },
+  "stats": {
+    "liveStream": "Canlı Yayın",
+    "activeCourts": "Aktif Kort",
+    "videoQuality": "Video Kalitesi"
+  },
+  "features": {
+    "live": {
+      "title": "Canlı Yayın",
+      "description": "HD kalitesinde tenis maçlarını canlı izleyin"
+    },
+    "matchControl": {
+      "title": "Maç Kontrolü",
+      "description": "Maçlarınızı başlatın ve yönetin"
+    },
+    "tournaments": {
+      "title": "Turnuvalar",
+      "description": "Yakında: Turnuva takip sistemi"
+    }
+  }
+}
