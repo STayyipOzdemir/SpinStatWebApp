@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { db } from "../firebase";
 import { doc, updateDoc, getDoc, setDoc } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
-import { Html5Qrcode, Html5QrcodeScanner, Html5QrcodeScanType } from "html5-qrcode";
+import { Html5QrcodeScanner } from "html5-qrcode";
 
 const MatchControl = () => {
   const { user } = useAuth();
@@ -33,127 +33,101 @@ const MatchControl = () => {
   const startQRScanner = async () => {
     try {
       setShowQRScanner(true);
-  
-      setTimeout(async () => {
-        const html5QrCode = new Html5Qrcode("qr-scanner-container");
-  
-        // 1) Cihazları al (arka kamerayı bulmaya çalış)
-        let camConfig;
-        try {
-          const devices = await Html5Qrcode.getCameras(); // izin öncesi label boş olabilir
-          // "back", "rear", "environment", "arka" gibi ipuçlarına bak
-          const backCam =
-            devices.find(d => /back|rear|environment|arka/i.test(d.label)) ||
-            devices.find(d => d.label.toLowerCase().includes("wide")) || // bazı telefonlarda geniş açı arka oluyor
-            devices[1] || devices[0]; // en azından 2. cihaz genelde arka
-  
-          camConfig = backCam
-            ? { deviceId: { exact: backCam.id } }
-            : { facingMode: { ideal: "environment" } }; // fallback
-        } catch {
-          // enumerateDevices izin gerektirebilir → izin öncesi fallback
-          camConfig = { facingMode: { ideal: "environment" } };
-        }
-  
-        // 2) Kamerayı başlat
-        const onScanSuccess = (decodedText) => {
-          setMatchCode(decodedText);
-          setQrMessage(`QR kod başarıyla okundu: ${decodedText}`);
-          setQrSuccess(true);
-  
-          // 3) QR okundu → durdur, temizle, modalı kapat
-          html5QrCode.stop()
-            .then(() => html5QrCode.clear())
-            .finally(() => {
-              setQrScanner(null);
-              setShowQRScanner(false);
-              setTimeout(() => {
-                setQrSuccess(false);
-                setQrMessage("");
-              }, 3000);
-            });
-        };
-  
-        const onScanFailure = () => {
-          // sürekli hata loglama yok; sessiz geç
-        };
-  
-        try {
-          await html5QrCode.start(
-            camConfig,
-            { fps: 10, qrbox: { width: 250, height: 250 } },
-            onScanSuccess,
-            onScanFailure
+      
+      // Biraz bekleyip DOM'un hazır olmasını sağla
+      setTimeout(() => {
+        if (qrScannerRef.current) {
+          const scanner = new Html5QrcodeScanner(
+            "qr-scanner-container",
+            {
+              fps: 10,
+              qrbox: { width: 250, height: 250 },
+              aspectRatio: 1.0,
+              showTorchButtonIfSupported: true,
+              showZoomSliderIfSupported: false,
+              rememberLastUsedCamera: false, // Her seferinde arka kamera seç
+              preferredCamera: "environment",
+              facingMode: "environment",
+              videoConstraints: {
+      facingMode: { exact: "environment" } // Kesinlikle arka kamera
+    }
+            },
+            false
           );
-  
-          // iOS Safari bazı durumlarda facingMode'u ilk denemede yok sayabilir.
-          // Ön kamera açıldıysa hızlıca arka kameraya geçmek için enumerate + restart:
-          const v = document.querySelector("#qr-scanner-container video");
-          const looksFront = v && v.getAttribute("playsinline") !== null && v.style.transform === ""; // kaba bir sezgi
-          if (looksFront) {
-            try {
-              const devices = await Html5Qrcode.getCameras();
-              const backCam =
-                devices.find(d => /back|rear|environment|arka/i.test(d.label)) ||
-                devices[1];
-              if (backCam) {
-                await html5QrCode.stop();
-                await html5QrCode.start(
-                  { deviceId: { exact: backCam.id } },
-                  { fps: 10, qrbox: { width: 250, height: 250 } },
-                  onScanSuccess,
-                  onScanFailure
-                );
+
+          scanner.render(
+            (decodedText, decodedResult) => {
+              // QR kod başarıyla okundu
+              console.log("QR kod okundu:", decodedText);
+              setMatchCode(decodedText);
+              setQrMessage(`QR kod başarıyla okundu: ${decodedText}`);
+              setQrSuccess(true);
+              
+              // Scanner'ı hemen temizle
+              scanner.clear().then(() => {
+                setQrScanner(null);
+                setShowQRScanner(false);
+                
+                // 3 saniye sonra mesajı gizle
+                setTimeout(() => {
+                  setQrSuccess(false);
+                  setQrMessage("");
+                }, 3000);
+              }).catch(error => {
+                console.error("Scanner temizlenirken hata:", error);
+              });
+            },
+            (error) => {
+              // QR kod okuma hatası - error objesini güvenli şekilde handle et
+              if (error && typeof error === 'string') {
+                // String hata mesajları
+                console.log("QR tarama devam ediyor:", error);
+              } else if (error && error.message) {
+                // Error objesi
+                console.log("QR tarama devam ediyor:", error.message);
+              } else {
+                // Undefined veya beklenmeyen format
+                console.log("QR tarama devam ediyor...");
               }
-            } catch {/* görmezden gel */}
-          }
-        } catch (err) {
-          console.error("Kamera başlatılamadı:", err);
-          alert("Kamera başlatılamadı. Lütfen izinleri ve tarayıcı ayarlarınızı kontrol edin.");
-          setShowQRScanner(false);
-          try { await html5QrCode.clear(); } catch {}
-          return;
+            }
+          );
+
+          setQrScanner(scanner);
         }
-  
-        setQrScanner(html5QrCode);
       }, 100);
     } catch (error) {
-      console.error("QR Scanner başlatılamadı:", error);
-      alert("QR Scanner başlatılamadı. Lütfen kamera izinlerini kontrol edin.");
+      console.error('QR Scanner başlatılamadı:', error);
+      alert('QR Scanner başlatılamadı. Lütfen kamera izinlerini kontrol edin.');
       setShowQRScanner(false);
     }
   };
-  
 
   // QR Scanner kapatma
   const stopQRScanner = () => {
-    const instance = qrScanner;
-    if (instance && typeof instance.stop === "function") {
-      instance.stop()
-        .then(() => instance.clear())
-        .finally(() => {
-          setQrScanner(null);
-          setShowQRScanner(false);
-        })
-        .catch(() => {
-          setQrScanner(null);
-          setShowQRScanner(false);
-        });
+    if (qrScanner) {
+      qrScanner.clear().then(() => {
+        console.log("QR Scanner temizlendi");
+        setQrScanner(null);
+        setShowQRScanner(false);
+      }).catch(error => {
+        console.error("QR Scanner temizlenirken hata:", error);
+        // Hata olsa bile state'i temizle
+        setQrScanner(null);
+        setShowQRScanner(false);
+      });
     } else {
       setShowQRScanner(false);
     }
   };
-  
 
   // Component unmount olduğunda QR scanner'ı temizle
   useEffect(() => {
     return () => {
-      if (qrScanner && typeof qrScanner.stop === "function") {
-        qrScanner.stop().then(() => qrScanner.clear()).catch(() => {});
+      if (qrScanner) {
+        qrScanner.clear().catch(console.error);
       }
     };
   }, [qrScanner]);
-  
 
   const handleMatchStart = async () => {
     if (!matchCode || !user) {
@@ -680,23 +654,7 @@ const qrIcon = {
   fontSize: "20px"
 };
 
-const qrButton = {
-  position: "absolute",
-  right: "10px",
-  background: "linear-gradient(135deg, #40916c, #52b788)",
-  border: "none",
-  borderRadius: "8px",
-  color: "white",
-  width: "40px",
-  height: "40px",
-  cursor: "pointer",
-  fontSize: "18px",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  transition: "all 0.3s ease",
-  boxShadow: "0 2px 8px rgba(64, 145, 108, 0.3)"
-};
+
 
 const exampleCodes = {
   display: "flex",
@@ -1003,52 +961,6 @@ const qrScannerElement = {
   width: "100%",
   borderRadius: "15px",
   overflow: "hidden"
-};
-
-const qrVideoContainer = {
-  position: "relative",
-  width: "100%",
-  aspectRatio: "1",
-  background: "#000",
-  borderRadius: "15px",
-  overflow: "hidden",
-  marginBottom: "15px"
-};
-
-const qrVideo = {
-  width: "100%",
-  height: "100%",
-  objectFit: "cover"
-};
-
-const scanOverlay = {
-  position: "absolute",
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  background: "rgba(0, 0, 0, 0.3)"
-};
-
-const scanFrame = {
-  width: "200px",
-  height: "200px",
-  border: "3px solid #40916c",
-  borderRadius: "15px",
-  position: "relative",
-  animation: "scanPulse 2s infinite"
-};
-
-const scanText = {
-  color: "white",
-  fontSize: "14px",
-  textAlign: "center",
-  marginTop: "15px",
-  textShadow: "0 1px 3px rgba(0, 0, 0, 0.5)"
 };
 
 const qrActions = {
