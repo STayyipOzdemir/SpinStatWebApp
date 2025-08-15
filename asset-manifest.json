@@ -1,12 +1,12 @@
 {
   "files": {
-    "main.js": "/SpinStatWebApp/static/js/main.4ea2503a.js",
+    "main.js": "/SpinStatWebApp/static/js/main.df07d7aa.js",
     "static/media/logo.png": "/SpinStatWebApp/static/media/logo.af464a0e4a7f83666ed3.png",
     "index.html": "/SpinStatWebApp/index.html",
     "static/media/getFetch.cjs": "/SpinStatWebApp/static/media/getFetch.7a7a1c81840c96d5a3ea.cjs",
-    "main.4ea2503a.js.map": "/SpinStatWebApp/static/js/main.4ea2503a.js.map"
+    "main.df07d7aa.js.map": "/SpinStatWebApp/static/js/main.df07d7aa.js.map"
   },
   "entrypoints": [
-    "static/js/main.4ea2503a.js"
+    "static/js/main.df07d7aa.js"
   ]
 }
