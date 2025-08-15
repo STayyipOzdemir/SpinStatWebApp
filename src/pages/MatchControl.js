@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { db } from "../firebase";
 import { doc, updateDoc, getDoc, setDoc } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
-import { Html5Qrcode } from "html5-qrcode";
+import { Html5Qrcode, Html5QrcodeScanner, Html5QrcodeScanType } from "html5-qrcode";
 
 const MatchControl = () => {
   const { user } = useAuth();
@@ -30,50 +30,90 @@ const MatchControl = () => {
   }, [timerActive]);
 
   // QR Scanner için kamera başlatma
-
   const startQRScanner = async () => {
     try {
       setShowQRScanner(true);
   
-      setTimeout(() => {
+      setTimeout(async () => {
         const html5QrCode = new Html5Qrcode("qr-scanner-container");
   
-        html5QrCode
-          .start(
-            { facingMode: { exact: "environment" } }, // Sadece arka kamera
+        // 1) Cihazları al (arka kamerayı bulmaya çalış)
+        let camConfig;
+        try {
+          const devices = await Html5Qrcode.getCameras(); // izin öncesi label boş olabilir
+          // "back", "rear", "environment", "arka" gibi ipuçlarına bak
+          const backCam =
+            devices.find(d => /back|rear|environment|arka/i.test(d.label)) ||
+            devices.find(d => d.label.toLowerCase().includes("wide")) || // bazı telefonlarda geniş açı arka oluyor
+            devices[1] || devices[0]; // en azından 2. cihaz genelde arka
+  
+          camConfig = backCam
+            ? { deviceId: { exact: backCam.id } }
+            : { facingMode: { ideal: "environment" } }; // fallback
+        } catch {
+          // enumerateDevices izin gerektirebilir → izin öncesi fallback
+          camConfig = { facingMode: { ideal: "environment" } };
+        }
+  
+        // 2) Kamerayı başlat
+        const onScanSuccess = (decodedText) => {
+          setMatchCode(decodedText);
+          setQrMessage(`QR kod başarıyla okundu: ${decodedText}`);
+          setQrSuccess(true);
+  
+          // 3) QR okundu → durdur, temizle, modalı kapat
+          html5QrCode.stop()
+            .then(() => html5QrCode.clear())
+            .finally(() => {
+              setQrScanner(null);
+              setShowQRScanner(false);
+              setTimeout(() => {
+                setQrSuccess(false);
+                setQrMessage("");
+              }, 3000);
+            });
+        };
+  
+        const onScanFailure = () => {
+          // sürekli hata loglama yok; sessiz geç
+        };
+  
+        try {
+          await html5QrCode.start(
+            camConfig,
             { fps: 10, qrbox: { width: 250, height: 250 } },
-            (decodedText) => {
-              console.log("QR kod okundu:", decodedText);
-              setMatchCode(decodedText);
-              setQrMessage(`QR kod başarıyla okundu: ${decodedText}`);
-              setQrSuccess(true);
+            onScanSuccess,
+            onScanFailure
+          );
   
-              // Kamerayı durdur
-              html5QrCode.stop().then(() => {
-                // HTML container'ı temizle
-                html5QrCode.clear();
-                setQrScanner(null);
-                setShowQRScanner(false);
-  
-                // 3 saniye sonra başarı mesajını da gizle
-                setTimeout(() => {
-                  setQrSuccess(false);
-                  setQrMessage("");
-                }, 3000);
-              }).catch((err) => {
-                console.error("Kamera durdurulurken hata:", err);
-              });
-            },
-            (errorMessage) => {
-              // Sürekli tarama hatalarını sessiz geç
-              // console.log("Tarama devam ediyor:", errorMessage);
-            }
-          )
-          .catch((err) => {
-            console.error("Kamera başlatılamadı:", err);
-            alert("Kamera başlatılamadı. Lütfen izinleri kontrol edin.");
-            setShowQRScanner(false);
-          });
+          // iOS Safari bazı durumlarda facingMode'u ilk denemede yok sayabilir.
+          // Ön kamera açıldıysa hızlıca arka kameraya geçmek için enumerate + restart:
+          const v = document.querySelector("#qr-scanner-container video");
+          const looksFront = v && v.getAttribute("playsinline") !== null && v.style.transform === ""; // kaba bir sezgi
+          if (looksFront) {
+            try {
+              const devices = await Html5Qrcode.getCameras();
+              const backCam =
+                devices.find(d => /back|rear|environment|arka/i.test(d.label)) ||
+                devices[1];
+              if (backCam) {
+                await html5QrCode.stop();
+                await html5QrCode.start(
+                  { deviceId: { exact: backCam.id } },
+                  { fps: 10, qrbox: { width: 250, height: 250 } },
+                  onScanSuccess,
+                  onScanFailure
+                );
+              }
+            } catch {/* görmezden gel */}
+          }
+        } catch (err) {
+          console.error("Kamera başlatılamadı:", err);
+          alert("Kamera başlatılamadı. Lütfen izinleri ve tarayıcı ayarlarınızı kontrol edin.");
+          setShowQRScanner(false);
+          try { await html5QrCode.clear(); } catch {}
+          return;
+        }
   
         setQrScanner(html5QrCode);
       }, 100);
@@ -87,30 +127,33 @@ const MatchControl = () => {
 
   // QR Scanner kapatma
   const stopQRScanner = () => {
-    if (qrScanner) {
-      qrScanner.clear().then(() => {
-        console.log("QR Scanner temizlendi");
-        setQrScanner(null);
-        setShowQRScanner(false);
-      }).catch(error => {
-        console.error("QR Scanner temizlenirken hata:", error);
-        // Hata olsa bile state'i temizle
-        setQrScanner(null);
-        setShowQRScanner(false);
-      });
+    const instance = qrScanner;
+    if (instance && typeof instance.stop === "function") {
+      instance.stop()
+        .then(() => instance.clear())
+        .finally(() => {
+          setQrScanner(null);
+          setShowQRScanner(false);
+        })
+        .catch(() => {
+          setQrScanner(null);
+          setShowQRScanner(false);
+        });
     } else {
       setShowQRScanner(false);
     }
   };
+  
 
   // Component unmount olduğunda QR scanner'ı temizle
   useEffect(() => {
     return () => {
-      if (qrScanner) {
-        qrScanner.clear().catch(console.error);
+      if (qrScanner && typeof qrScanner.stop === "function") {
+        qrScanner.stop().then(() => qrScanner.clear()).catch(() => {});
       }
     };
   }, [qrScanner]);
+  
 
   const handleMatchStart = async () => {
     if (!matchCode || !user) {
