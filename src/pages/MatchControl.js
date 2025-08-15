@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { db } from "../firebase";
 import { doc, updateDoc, getDoc, setDoc } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
-import { Html5QrcodeScanner, Html5QrcodeScanType } from "html5-qrcode";
+import { Html5Qrcode, Html5QrcodeScanner, Html5QrcodeScanType } from "html5-qrcode";
 
 const MatchControl = () => {
   const { user } = useAuth();
@@ -30,76 +30,54 @@ const MatchControl = () => {
   }, [timerActive]);
 
   // QR Scanner için kamera başlatma
-  const startQRScanner = async () => {
-    try {
-      setShowQRScanner(true);
-      
-      // Biraz bekleyip DOM'un hazır olmasını sağla
-      setTimeout(() => {
-        if (qrScannerRef.current) {
-          const scanner = new Html5QrcodeScanner(
-            "qr-scanner-container",
-            {
-              fps: 10,
-              qrbox: { width: 250, height: 250 },
-              aspectRatio: 1.0,
-              showTorchButtonIfSupported: true,
-              showZoomSliderIfSupported: false,
-              rememberLastUsedCamera: false, // Her seferinde arka kamera seç
-              disableFlip: true, // Ön/arka kamera değiştirme butonunu kapatır
-              videoConstraints: {
-                facingMode: { exact: "environment" } // Kesinlikle arka kamera
-              }
-            },
-            false
-          );
 
-          scanner.render(
-            (decodedText, decodedResult) => {
-              // QR kod başarıyla okundu
-              console.log("QR kod okundu:", decodedText);
-              setMatchCode(decodedText);
-              setQrMessage(`QR kod başarıyla okundu: ${decodedText}`);
-              setQrSuccess(true);
-              
-              // Scanner'ı hemen temizle
-              scanner.clear().then(() => {
-                setQrScanner(null);
-                setShowQRScanner(false);
-                
-                // 3 saniye sonra mesajı gizle
-                setTimeout(() => {
-                  setQrSuccess(false);
-                  setQrMessage("");
-                }, 3000);
-              }).catch(error => {
-                console.error("Scanner temizlenirken hata:", error);
-              });
-            },
-            (error) => {
-              // QR kod okuma hatası - error objesini güvenli şekilde handle et
-              if (error && typeof error === 'string') {
-                // String hata mesajları
-                console.log("QR tarama devam ediyor:", error);
-              } else if (error && error.message) {
-                // Error objesi
-                console.log("QR tarama devam ediyor:", error.message);
-              } else {
-                // Undefined veya beklenmeyen format
-                console.log("QR tarama devam ediyor...");
-              }
-            }
-          );
+const startQRScanner = async () => {
+  try {
+    setShowQRScanner(true);
 
-          setQrScanner(scanner);
+    setTimeout(() => {
+      const html5QrCode = new Html5Qrcode("qr-scanner-container");
+
+      html5QrCode.start(
+        { facingMode: { exact: "environment" } }, // Sadece arka kamera
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 }
+        },
+        (decodedText) => {
+          console.log("QR kod okundu:", decodedText);
+          setMatchCode(decodedText);
+          setQrMessage(`QR kod başarıyla okundu: ${decodedText}`);
+          setQrSuccess(true);
+
+          html5QrCode.stop().then(() => {
+            setQrScanner(null);
+            setShowQRScanner(false);
+
+            setTimeout(() => {
+              setQrSuccess(false);
+              setQrMessage("");
+            }, 3000);
+          });
+        },
+        (error) => {
+          console.log("QR tarama devam ediyor:", error);
         }
-      }, 100);
-    } catch (error) {
-      console.error('QR Scanner başlatılamadı:', error);
-      alert('QR Scanner başlatılamadı. Lütfen kamera izinlerini kontrol edin.');
-      setShowQRScanner(false);
-    }
-  };
+      ).catch((err) => {
+        console.error("Kamera başlatılamadı:", err);
+        alert("Kamera başlatılamadı. Lütfen izinleri kontrol edin.");
+        setShowQRScanner(false);
+      });
+
+      setQrScanner(html5QrCode);
+    }, 100);
+  } catch (error) {
+    console.error('QR Scanner başlatılamadı:', error);
+    alert('QR Scanner başlatılamadı. Lütfen kamera izinlerini kontrol edin.');
+    setShowQRScanner(false);
+  }
+};
+
 
   // QR Scanner kapatma
   const stopQRScanner = () => {
