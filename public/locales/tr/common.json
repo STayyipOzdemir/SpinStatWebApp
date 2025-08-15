@@ -1,0 +1,9 @@
+{
+  "brand": "SpinStat",
+  "logout": "Çıkış",
+  "nav": {
+    "home": "Ana Sayfa",
+    "live": "Canlı Yayın",
+    "matchControl": "Maç Kontrol"
+  }
+}

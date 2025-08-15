@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { db } from "../firebase";
 import { doc, updateDoc, getDoc, setDoc } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
 import { Html5QrcodeScanner } from "html5-qrcode";
 
 const MatchControl = () => {
+  const { t } = useTranslation("match");
   const { user } = useAuth();
   const [step, setStep] = useState("start");
   const [matchCode, setMatchCode] = useState("");
@@ -321,12 +323,12 @@ const MatchControl = () => {
       <div style={headerSection}>
         <div style={titleContainer}>
           <span style={titleIcon}>⚡</span>
-          <h1 style={pageTitle}>Maç Kontrol</h1>
+          <h1 style={pageTitle}>{t("title", "Maç Kontrol")}</h1>
         </div>
         <div style={subtitle}>
-          {step === "start" 
-            ? "Yeni bir maç başlatmak için kort kodunu girin" 
-            : "Maçınız devam ediyor"}
+          {step === "start"
+            ? t("subtitleStart", "Yeni bir maç başlatmak için kort kodunu girin")
+            : t("subtitleRunning", "Maçınız devam ediyor")}
         </div>
       </div>
 
@@ -404,24 +406,7 @@ const MatchControl = () => {
               )}
             </button>
 
-            {/* Info Cards */}
-            <div style={infoCards}>
-              <div style={infoCard}>
-                <div style={cardIcon}>📹</div>
-                <div style={cardContent}>
-                  <h3 style={cardTitle}>Otomatik Kayıt</h3>
-                  <p style={cardText}>Maçınız otomatik olarak kaydedilecek</p>
-                </div>
-              </div>
-              
-              <div style={infoCard}>
-                <div style={cardIcon}>📊</div>
-                <div style={cardContent}>
-                  <h3 style={cardTitle}>Anlık İstatistik</h3>
-                  <p style={cardText}>Maç süresini takip edin</p>
-                </div>
-              </div>
-            </div>
+            {/* Info Cards kaldırıldı */}
           </div>
         )}
 
@@ -614,7 +599,7 @@ const inputIcon = {
   position: "absolute",
   left: "15px",
   fontSize: "20px",
-  color: "#52b788",
+  color: "#2563eb",
   zIndex: 1
 };
 
@@ -622,12 +607,12 @@ const inputStyle = {
   width: "100%",
   padding: "15px 15px 15px 50px", // Normal padding'e geri döndü
   fontSize: "16px",
-  border: "2px solid #d1fae5",
+  border: "2px solid #bfdbfe",
   borderRadius: "15px",
   outline: "none",
   transition: "all 0.3s ease",
-  background: "#fafafa",
-  color: "#1b4332"
+  background: "#f0f7ff",
+  color: "#1e3a8a"
 };
 
 const qrButtonContainer = {
@@ -678,10 +663,10 @@ const codeButtons = {
 
 const codeButton = {
   padding: "8px 15px",
-  background: "#f0fdf4",
-  border: "1px solid #bbf7d0",
+  background: "#e0e7ff",
+  border: "1px solid #93c5fd",
   borderRadius: "8px",
-  color: "#166534",
+  color: "#1e3a8a",
   cursor: "pointer",
   fontSize: "14px",
   fontWeight: "500",
@@ -693,7 +678,7 @@ const startButton = {
   padding: "20px",
   fontSize: "18px",
   fontWeight: "bold",
-  background: "linear-gradient(135deg, #059669, #10b981)",
+  background: "linear-gradient(135deg, #2563eb, #60a5fa)",
   color: "white",
   border: "none",
   borderRadius: "15px",

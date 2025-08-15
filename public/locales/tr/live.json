@@ -1,0 +1,20 @@
+{
+	"title": "Canlı Yayın",
+	"subtitle": "En iyi tenis maçlarını canlı izleyin",
+	"categoryLabel": "Spor Kompleksi:",
+	"courtLabel": "Kort:",
+	"categoryNames": {
+		"ankaraBilkent": "Ankara Bilkent Sports International"
+	},
+	"courtNames": {
+		"court1": "Kort 1",
+		"court2": "Kort 2"
+	},
+	"liveBadge": "CANLI YAYIN",
+	"hd": "HD",
+	"fullscreenEnter": "Tam Ekran",
+	"fullscreenExit": "Küçük Ekran",
+	"close": "Kapat",
+	"qualityLabel": "Kalite:",
+	"platformLabel": "Platform:"
+}

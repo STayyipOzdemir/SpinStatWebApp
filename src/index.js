@@ -1,10 +1,14 @@
-
+import "./i18n";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import { AuthProvider } from "./context/AuthContext";
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+// i18n'i uygulamaya yükle (provider sarmaya gerek yok, bu import yeterli)
+
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(
   <React.StrictMode>
     <AuthProvider>
       <App />

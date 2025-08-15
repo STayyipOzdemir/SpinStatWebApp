@@ -1,0 +1,20 @@
+{
+	"title": "Diffusion en direct",
+	"subtitle": "Regardez les meilleurs matchs de tennis en direct",
+	"categoryLabel": "Complexe sportif:",
+	"courtLabel": "Court:",
+	"categoryNames": {
+		"ankaraBilkent": "Ankara Bilkent Sports International"
+	},
+	"courtNames": {
+		"court1": "Court 1",
+		"court2": "Court 2"
+	},
+	"liveBadge": "DIFFUSION EN DIRECT",
+	"hd": "HD",
+	"fullscreenEnter": "Plein écran",
+	"fullscreenExit": "Quitter le plein écran",
+	"close": "Fermer",
+	"qualityLabel": "Qualité:",
+	"platformLabel": "Plateforme:"
+}

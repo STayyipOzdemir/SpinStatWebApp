@@ -1,0 +1,9 @@
+{
+  "brand": "SpinStat",
+  "logout": "Logout",
+  "nav": {
+    "home": "Home",
+    "live": "Live Broadcast",
+    "matchControl": "Match Control"
+  }
+}

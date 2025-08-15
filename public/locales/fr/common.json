@@ -1,0 +1,9 @@
+{
+  "brand": "SpinStat",
+  "logout": "Déconnexion",
+  "nav": {
+    "home": "Accueil",
+    "live": "Diffusion en direct",
+    "matchControl": "Contrôle du match"
+  }
+}
