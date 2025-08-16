@@ -1,12 +1,12 @@
 {
   "files": {
-    "main.js": "/SpinStatWebApp/static/js/main.df07d7aa.js",
-    "static/media/logo.png": "/SpinStatWebApp/static/media/logo.af464a0e4a7f83666ed3.png",
-    "index.html": "/SpinStatWebApp/index.html",
-    "static/media/getFetch.cjs": "/SpinStatWebApp/static/media/getFetch.7a7a1c81840c96d5a3ea.cjs",
-    "main.df07d7aa.js.map": "/SpinStatWebApp/static/js/main.df07d7aa.js.map"
+    "main.js": "./static/js/main.e36d2475.js",
+    "static/media/logo.png": "./static/media/logo.af464a0e4a7f83666ed3.png",
+    "index.html": "./index.html",
+    "static/media/getFetch.cjs": "./static/media/getFetch.7a7a1c81840c96d5a3ea.cjs",
+    "main.e36d2475.js.map": "./static/js/main.e36d2475.js.map"
   },
   "entrypoints": [
-    "static/js/main.df07d7aa.js"
+    "static/js/main.e36d2475.js"
   ]
 }
